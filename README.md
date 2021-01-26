@@ -1,6 +1,6 @@
 [![](https://github.com/id-05/Asterisk_AMI_Phone/blob/master/image/googleplaylogo.jpg)](https://play.google.com/store/apps/details?id=com.id05.asteriskcallmedisa) 
 
-[![](https://github.com/id-05/Asterisk_AMI_Phone/blob/master/image/asterisk.png)](https://www.asterisk.org)
+[![](https://github.com/id-05/Asterisk_AMI_Phone/blob/master/image/logo.png)](https://www.asterisk.org)
 
 ### 	Description
 
@@ -13,4 +13,4 @@ The app uses the Asterisk Manager Interface for phone calls. The app allows you 
 
 ![](https://github.com/id-05/Asterisk_AMI_Phone/blob/master/image/1.jpg)
 ![](https://github.com/id-05/Asterisk_AMI_Phone/blob/master/image/2.jpg)
-![](https://github.com/id-05/Asterisk_AMI_Phone/blob/master/image/3.jpg)
+
