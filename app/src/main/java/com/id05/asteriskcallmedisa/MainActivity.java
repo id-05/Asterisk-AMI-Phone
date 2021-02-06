@@ -1,6 +1,8 @@
 package com.id05.asteriskcallmedisa;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -14,36 +16,41 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
-import android.view.DragEvent;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SoundEffectConstants;
 import android.view.View;
-import android.view.inputmethod.InputMethod;
-import android.view.inputmethod.InputMethodManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import static java.lang.Thread.sleep;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ConnectionCallback {
 
     EditText mySeachText;
     static TelnetTask telnetTask;
@@ -56,14 +63,10 @@ public class MainActivity extends AppCompatActivity {
     private static MyTelnetClient mtc;
     public SharedPreferences sPref;
     private final int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
-    private static boolean READ_CONTACTS_GRANTED =false;
     public String TAG = "aster";
     public RecordAdapter adapter;
     public ArrayList<Contact> contacts = new ArrayList<>();
     public ArrayList<Contact> bufcontacts = new ArrayList<>();
-    ImageView imgDialer;
-    LinearLayout layoutDialer;
-    RelativeLayout keypadlayout;
     RecyclerView recyclerView;
     EditText inputNumber;
     Button but0;
@@ -76,23 +79,30 @@ public class MainActivity extends AppCompatActivity {
     Button but7;
     Button but8;
     Button but9;
-    Button butDel;
-    Button butCall;
-    InputMethodManager imm;
+    ImageButton butDel;
+    ImageButton butCall;
+    private SlidingUpPanelLayout slPanel;
+    Context context;
+    Animation animationRotateRight = null;
+    Animation animationRotateLeft = null;
+    Animation animationWait = null;
+    Drawable dial, backspace, wait;
+    Boolean callingState = false;
+    AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = this;
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         recyclerView = findViewById(R.id.recyclerView);
-        imgDialer = findViewById(R.id.imageDialer);
-        imgDialer.setOnClickListener(dialerClick);
-        layoutDialer = findViewById(R.id.layoutDialer);
-        keypadlayout = findViewById(R.id.keypadLayout);
+        recyclerView.setNestedScrollingEnabled(true);
         inputNumber = findViewById(R.id.inputNumber);
         but0 = findViewById(R.id.but0);
         but0.setOnClickListener(digitClick);
+        but0.playSoundEffect(SoundEffectConstants.CLICK);
         but1 = findViewById(R.id.but1);
         but1.setOnClickListener(digitClick);
         but2 = findViewById(R.id.but2);
@@ -117,19 +127,24 @@ public class MainActivity extends AppCompatActivity {
         butCall = findViewById(R.id.butCall);
         butCall.setOnClickListener(digitClick);
 
+        slPanel = findViewById(R.id.sliding_layout);
+        slPanel.addPanelSlideListener(panelSlideListener);
+        dial = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
+        backspace = getResources().getDrawable(R.drawable.ic_baseline_backspace_24);
+        wait = getResources().getDrawable(R.drawable.ic_baseline_wait_24);
+
         loadCONFIG();
+
         mySeachText = findViewById(R.id.editText);
-        //recyclerView.setOnDragListener(dragContactlist);
-        // Проверка разрешения
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED)
         {
-            Log.d(TAG, "Permission is granted");
+            //Log.d(TAG, "Permission is granted");
             readContacts(this);
         } else {
-            Log.d(TAG, "Permission is not granted");
-            Log.d(TAG, "Request permissions");
+            //Log.d(TAG, "Permission is not granted");
+            //Log.d(TAG, "Request permissions");
             ActivityCompat.requestPermissions(this,
                     new String[]{
                             Manifest.permission
@@ -151,16 +166,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if(mySeachText.getText().length()>=1) {
-                    Log.d("aster",">0");
                     bufcontacts.clear();
                     for (Contact contact : contacts) {
-                        //if(mySeachText.getText().length()<=contact.getName().length()) {
-                        //    String buf1 = mySeachText.getText().toString();
-                        //    if (mySeachText.getText().toString().equals(contact.getName().substring(0, mySeachText.getText().length()))) {
-                        //        bufcontacts.add(contact);
-                        //    }
-                        //}
-                        if(contact.getName().contains(mySeachText.getText())){
+                        if(contact.getName()!= null && !contact.getName().isEmpty()&& contact.getName().contains(mySeachText.getText())){
                             bufcontacts.add(contact);
                         }
                         onSetContacnts(bufcontacts);
@@ -172,21 +180,76 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mySeachText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mySeachText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                layoutDialer.setVisibility(View.VISIBLE);
-                keypadlayout.setVisibility(View.INVISIBLE);
+            public void onClick(View v) {
+                slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             }
         });
 
         inputNumber.setKeyListener(null);
+
+        animationRotateRight = AnimationUtils.loadAnimation(this, R.anim.rotateright);
+        animationRotateRight.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                butDel.setImageDrawable(backspace);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animationRotateLeft = AnimationUtils.loadAnimation(this, R.anim.rotateleft);
+        animationRotateLeft.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                butDel.setImageDrawable(dial);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animationWait = AnimationUtils.loadAnimation(this, R.anim.rotate);
+        animationWait.setRepeatCount(Animation.INFINITE);
+        animationWait.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                butDel.startAnimation(animationWait);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
+
+
 
     View.OnClickListener digitClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             String buf = inputNumber.getText().toString();
+            audioManager.playSoundEffect(SoundEffectConstants.CLICK);
             switch(v.getId()) {
 
                 case R.id.but0: inputNumber.setText(buf+"0");
@@ -210,48 +273,63 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.but9: inputNumber.setText(buf+"9");
                     break;
                 case R.id.butDel:
-                    if(buf.length()!=0){
-                        inputNumber.setText(buf.substring(0,buf.length()-1));
+                    if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
+                        slPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    }
+                    if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                        if (buf.length() != 0) {
+                            inputNumber.setText(buf.substring(0, buf.length() - 1));
+                        }else {
+                            slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        }
                     }
                     break;
-
-
                 case R.id.butCall:{
-                    RecordAdapter.CallTask callTask = new RecordAdapter.CallTask();
-                    callTask.execute(inputNumber.getText().toString());
-                    layoutDialer.setVisibility(View.VISIBLE);
-                    keypadlayout.setVisibility(View.INVISIBLE);
-                    Toast toast = Toast.makeText(MainActivity.this,
-                            "Wait Call", Toast.LENGTH_LONG);
-                    toast.show();
+                    calling(inputNumber.getText().toString());
                 }
                     break;
             }
         }
     };
 
+    public void calling(String number){
+        callingState = true;
+        slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        butDel.setImageDrawable(wait);
+        butDel.startAnimation(animationWait);
+        inputNumber.setText("WAIT");
+        doSomethingAsyncOperaion("open", number);
+    }
 
-    View.OnClickListener dialerClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            layoutDialer.setVisibility(View.INVISIBLE);
-            keypadlayout.setVisibility(View.VISIBLE);
-            //inputNumber.setFocusable(true);
-            inputNumber.requestFocus();
 
-            //imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            //imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,InputMethodManager.HIDE_IMPLICIT_ONLY);
-        }
-    };
+    private final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
+            new SlidingUpPanelLayout.PanelSlideListener() {
+                @Override
+                public void onPanelSlide(View view, float v) {
+                    //Log.d("aster","state = "+slPanel.getPanelState().toString());
+                }
+
+                @Override
+                public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                    if(!callingState){
+                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                            butDel.startAnimation(animationRotateRight);
+                        }
+                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
+                            inputNumber.setText("");
+                            butDel.startAnimation(animationRotateLeft);
+                            slPanel.setPanelHeight((int) (60 * context.getResources().getDisplayMetrics().density));
+                        }
+                    }
+                }
+            };
 
     @Override
     public void onBackPressed() {
-        if(keypadlayout.getVisibility()==View.VISIBLE){
-            //imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-            layoutDialer.setVisibility(View.VISIBLE);
-            keypadlayout.setVisibility(View.INVISIBLE);
-            //Log.d("aster","нажали назад");
-            //imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            Drawable myDrawable = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
+            butDel.setImageDrawable(myDrawable);
         }else {
             super.onBackPressed();
         }
@@ -268,6 +346,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.settings:
+                ActionMenuItemView image = findViewById(R.id.settings);
+                image.startAnimation(animationRotateLeft);
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 return true;
@@ -286,24 +366,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String[] permissions,
-                                           int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_READ_CONTACTS : {
-                // При отмене запроса массив результатов пустой
                 if ((grantResults.length > 0) &&
                         (grantResults[0] ==
                                 PackageManager.PERMISSION_GRANTED)) {
-                    // Разрешения получены
-                    Log.d(TAG, "Разрешения получены  onRequestPermissionsResult !");
-
-                    // Чтение контактов11
                     readContacts(this);
                 } else {
-                    // Разрешения НЕ получены.
-                    Log.d(TAG, "Permission denied!");
+                    //Log.d(TAG, "Permission denied!");
                 }
                 return;
             }
@@ -364,7 +436,80 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //mtc.close();
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public static void doSomethingAsyncOperaion(final String comand, final String number) {
+        new AbstractAsyncWorker<String>(this,comand,number) {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected String doAction() throws Exception {
+                String result = "";
+                if(comand.equals("open")){
+                    Log.d("aster","open telnet");
+                        mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                }
+                if(comand.equals("login")){
+                    String com1 = "Action: Login\n"+
+                            "Events: off\n"+
+                            "Username: "+amiuser+"\n"+
+                            "Secret: "+amisecret+"\n";
+                    Log.d("aster","LOGIN " +mtc.getResponse(com1));
+                }
+                if(comand.equals("call")){
+                    String comenter = "Action: Originate\n" +
+                            "Channel: Local/"+myphonenumber+"@"+astercontext+"\n" +
+                            "Exten: "+number+"\n" +
+                            "Context: from-internal\n" +
+                            "Priority: 1\n" +
+                            "Async: true\n" +
+                            "CallerID: "+myphonenumber+"\n" +
+                            "ActionID: 123\n";
+                    Log.d("aster","CALL " +mtc.sendCommand(comenter));
+                }
+                if(comand.equals("exit")){
+                    String com1 = "Action: Logoff\n";
+                    Log.d("aster","EXIT " +mtc.sendCommand(com1));
+                }
+
+
+                return result;
+            }
+        }.execute();
+    }
+
+    @Override
+    public void onBegin() {
+
+    }
+
+    @Override
+    public void onSuccess(String data, String param) {
+        if(data.equals("open")){
+            doSomethingAsyncOperaion("login",param);
+        }
+        if(data.equals("login")){
+            doSomethingAsyncOperaion("call",param);
+        }
+        if(data.equals("call")){
+            doSomethingAsyncOperaion("exit",param);
+        }
+        if(data.equals("exit")){
+            inputNumber.setText("");
+            butDel.setImageDrawable(dial);
+            butDel.startAnimation(animationRotateLeft);
+            callingState = false;
+        }
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+        Log.d("aster"," failure");
+    }
+
+    @Override
+    public void onEnd() {
+
     }
 
     static class TelnetTask extends AsyncTask<String, Void, String> {
@@ -434,9 +579,8 @@ public class MainActivity extends AppCompatActivity {
                                 ContactsContract.Contacts
                                         .HAS_PHONE_NUMBER));
                 if (Integer.parseInt(has_phone) > 0) {
-                    // extract phone number
-                    Cursor cursor2;
-                    cursor2 = context.getContentResolver().query(
+                        Cursor cursor2;
+                        cursor2 = context.getContentResolver().query(
                             ContactsContract.CommonDataKinds
                                     .Phone.CONTENT_URI,
                             null,
@@ -457,10 +601,9 @@ public class MainActivity extends AppCompatActivity {
                 contacts.add(contact);
             }
         }
-        if(contacts.size()>2) {
-          //  Log.d("aster","контакты проитаны  ");
+        //if(contacts.size()>2) {
           // Collections.sort(contacts, new NameSorter());
-        }
+        //}
         onSetContacnts(contacts);
 
     }
@@ -481,4 +624,8 @@ public class MainActivity extends AppCompatActivity {
         astercontext = sPref.getString("CONTEXT", "from-internal");
         myphonenumber = sPref.getString("MYPHONE", "");
     }
+
+
+
+
 }

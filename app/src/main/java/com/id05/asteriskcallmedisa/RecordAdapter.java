@@ -46,32 +46,33 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
 
     @Override
     public void onBindViewHolder(@NonNull final DISAViewHolder disaViewHolder, final int i) {
-        //final Contact node = contacts.get(i);
         disaViewHolder.contactName.setText(contacts.get(i).getName());
         disaViewHolder.contactPhone.setText(contacts.get(i).getPhone());
         disaViewHolder.contactLayout.setBackgroundColor(Color.WHITE);
-
         disaViewHolder.contactLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 disaViewHolder.contactLayout.setBackgroundColor(Color.GRAY);
-                notifyItemChanged(i);//notifyDataSetChanged();
-
-                Toast toast = Toast.makeText(context,
-                        "Wait Call", Toast.LENGTH_LONG);
-                toast.show();
-
-                CallTask callTask = new CallTask();
-                callTask.execute(contacts.get(i).getPhone());
-
-//                try {
-//                    MainActivity.MainProd("89145077248", contacts.get(i).getPhone());
-//                } catch (IOException e) {
-//                    Toast toast2 = Toast.makeText(context,
-//                            "AMI Error", Toast.LENGTH_SHORT);
-//                }
-
+                notifyItemChanged(i);
+                Log.d("aster",!SERVER_IP.equals("") +"  "+ (SERVERPORT > 0)
+                        +"  "+ (!amiuser.equals("")) +"  "+ (!amisecret.equals(""))
+                        +"  "+ (!astercontext.equals("")) +"  "+ (!myphonenumber.equals("")));
+                if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
+                        & (!amiuser.equals("")) & (!amisecret.equals(""))
+                        & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {
+                    MainActivity.doSomethingAsyncOperaion("open", contacts.get(i).getPhone());
+//                    Toast toast = Toast.makeText(context,
+//                            "Wait Call", Toast.LENGTH_LONG);
+//                    toast.show();
+//                    CallTask callTask = new CallTask();
+//                    callTask.execute(contacts.get(i).getPhone());
+                 //   MainActivity.calling(contacts.get(i).getPhone());
+                }else{
+                    Toast toast = Toast.makeText(context,
+                            "Сheck your settings", Toast.LENGTH_LONG);
+                    toast.show();
+                }
             }
         });
     }
@@ -94,7 +95,6 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
-
             return null;
         }
 

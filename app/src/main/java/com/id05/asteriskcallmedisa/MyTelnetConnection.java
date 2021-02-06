@@ -27,25 +27,8 @@ public class MyTelnetConnection {
     public void connect() throws IOException{
         try {
             client.connect(SERVER_IP, SERVERPORT);
-/*
-            InputStream instream = client.getInputStream();
-            InputStreamReader a = new InputStreamReader(instream);//spawnSpy();
-            BufferedReader buf = new BufferedReader(a);
-            while(buf.ready())
-            { buf.read();}
-            StringBuilder result = null;
-            result = new StringBuilder();
-            String bufstr;
-            while((bufstr = buf.readLine()) != null){
-                Log.d("aster", "con bufstr = "+bufstr);
-                result.append(bufstr);
-            }
-            Log.d("aster", "con bufstr = "+bufstr);
-            Log.d("aster", "con result = "+result);
-*/
         } catch (SocketException ex) {
             Log.d("aster",ex.toString());
-          //  throw new SocketException("Connection error...");
         }
     }
 
@@ -61,32 +44,6 @@ public class MyTelnetConnection {
         return client.isConnected();
     }
 
-//    public boolean sendCommand(String cmd){
-//        if(client==null || !client.isConnected()){
-//            return false;
-//        }
-//
-//        StringBuilder stringBuilder = new StringBuilder();
-//
-//        stringBuilder.append(cmd);
-//        stringBuilder.append("\n\r");
-//
-//        byte[] cmdbyte = stringBuilder.toString().getBytes();
-//
-//        OutputStream outstream = client.getOutputStream();
-//        //Log.d("aster",(new String(cmdbyte, 0, cmdbyte.length)));
-//
-//        try {
-//            outstream.write(cmdbyte, 0, cmdbyte.length);
-//            outstream.flush();
-//            return true;
-//        } catch (Exception e1) {
-//            Log.e("Error writing to output", e1.getMessage());
-//            return false;
-//        }
-//    }
-
-    //exits telnet session and cleans up the telnet console
     public boolean disconnect() {
         try {
             client.disconnect();

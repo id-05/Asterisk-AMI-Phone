@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId "com.id05.asteriskcallmedisa"
         minSdkVersion 16
-        targetSdkVersion 29
-        versionCode 4
-        versionName "1.4"
+        targetSdkVersion 28
+        versionCode 5
+        versionName "1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,7 +35,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation files('C:\\Users\\id-05\\Dropbox\\PROGRAMS_ANDROID\\AsteriskcallmeDISA\\externallib\\commons-io-2.6.jar')
     implementation files('C:\\Users\\id-05\\Dropbox\\PROGRAMS_ANDROID\\AsteriskcallmeDISA\\externallib\\apache-commons-net.jar')
-    testImplementation 'junit:junit:4.12'
+    implementation 'com.sothree.slidinguppanel:library:3.4.0'
+    testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 

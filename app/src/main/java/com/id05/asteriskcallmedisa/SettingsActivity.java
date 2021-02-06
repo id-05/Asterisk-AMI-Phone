@@ -13,9 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 
-import static com.id05.asteriskcallmedisa.MainActivity.OpenTelnetClient;
+
+import java.io.IOException;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
 import static com.id05.asteriskcallmedisa.MainActivity.amisecret;
@@ -40,6 +40,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static MyTelnetClient mtc;
     TelnetTask telnetTask, telnetTaskTest;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,21 +63,38 @@ public class SettingsActivity extends AppCompatActivity {
     final View.OnClickListener testConnection = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            telnetTask = new TelnetTask();
-            telnetTask.execute("open");
 
-            try {
-                sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if((!ipaddrEdit.getText().toString().equals("")) & (!portEdit.getText().toString().equals(""))
+                    & (!amiuserEdit.getText().toString().equals("")) & (!amisecretEdit.getText().toString().equals(""))) {
+                telnetTask = new TelnetTask();
+                telnetTask.execute("open");
+
+                try {
+                    sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                telnetTaskTest = new TelnetTask();
+                String com1 = "Action: Login\n" +
+                        "Events: off\n" +
+                        "Username: " + amiuserEdit.getText().toString() + "\n" +
+                        "Secret: " + amisecretEdit.getText().toString() + "\n";
+                telnetTaskTest.execute("login", com1);
+            }else{
+                if(ipaddrEdit.getText().toString().equals("")){
+                    Toast toast = Toast.makeText(SettingsActivity.this, "Empty IP", Toast.LENGTH_SHORT); toast.show();
+                }
+                if(portEdit.getText().toString().equals("")){
+                    Toast toast = Toast.makeText(SettingsActivity.this, "Empty PORT", Toast.LENGTH_SHORT); toast.show();
+                }
+                if(amiuserEdit.getText().toString().equals("")){
+                    Toast toast = Toast.makeText(SettingsActivity.this, "Empty AMI username", Toast.LENGTH_SHORT); toast.show();
+                }
+                if(amisecretEdit.getText().toString().equals("")){
+                    Toast toast = Toast.makeText(SettingsActivity.this, "Empty AMI secret", Toast.LENGTH_SHORT); toast.show();
+                }
             }
-
-            telnetTaskTest = new TelnetTask();
-            String com1 = "Action: Login\n"+
-                    "Events: off\n"+
-                    "Username: "+amiuserEdit.getText().toString()+"\n"+
-                    "Secret: "+amisecretEdit.getText().toString()+"\n";
-            telnetTaskTest.execute("login",com1);
         }
     };
 
@@ -87,16 +105,16 @@ public class SettingsActivity extends AppCompatActivity {
         }
         @Override
         protected String doInBackground(String... param) {
-            String buf = null;
+            String buf = "";
             if(param[0].equals("open")){
                 try {
                     mtc = new MyTelnetClient(ipaddrEdit.getText().toString(),Integer.parseInt(portEdit.getText().toString()));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    Log.d("aster","error of creat client");
                 }
                 buf = "open";
             }
-            if(param[0].equals("login")){
+            if(param[0].equals("login")){  //if(param[0].equals("login")&(mtc!=null)){
                 try {
                     buf = mtc.getResponse(param[1]);
                 } catch (IOException e) {
@@ -105,13 +123,13 @@ public class SettingsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
             return buf;
         }
 
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            Log.d("aster","result = "+result);
             if(!result.equals("open"))
             {
                 if(result.equals("Response: SuccessMessage: Authentication accepted")){
@@ -191,14 +209,6 @@ public class SettingsActivity extends AppCompatActivity {
         astercontext = asteriskcontextEdit.getText().toString();
         editor.putString("MYPHONE", myphonenumberEdit.getText().toString());
         myphonenumber = myphonenumberEdit.getText().toString();
-        editor.commit();
+        editor.apply();
     }
-
-
-
-//    Snackbar.make(addServer
-//                        ,
-//    R.string.sucsess,
-//    Snackbar.LENGTH_LONG
-//                ).show();
 }

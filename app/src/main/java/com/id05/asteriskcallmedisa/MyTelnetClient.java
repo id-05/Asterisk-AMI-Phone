@@ -30,7 +30,6 @@ public class MyTelnetClient {
     private OutputStream outstream;
     private org.apache.commons.net.telnet.TelnetClient rawConnection;
     private InputStream instream;
-    AtomicInteger guy;
     private LinkedList<Thread> threads = new LinkedList();
     private PipedInputStream spyReader;
 
@@ -42,14 +41,6 @@ public class MyTelnetClient {
         instream = client.getReader();
     }
 
-    public void close() throws IOException {
-        rawConnection.disconnect();
-    }
-
-     /**
-     * @param cmd the string of message you want to send
-     * @return true if message was sent successfully
-     */
     public boolean sendCommand(String cmd) {
         if (client == null || !client.isConnected()) {
             return false;
@@ -81,9 +72,8 @@ public class MyTelnetClient {
         stringBuilder.append("\n");
 
         byte[] cmdbyte = stringBuilder.toString().getBytes();
-        //Log.d("aster","STRINGBUILDER: "+stringBuilder.toString());
 
-        InputStreamReader a = spawnSpy();//new InputStreamReader(instream);//
+        InputStreamReader a = spawnSpy();
         BufferedReader buf = new BufferedReader(a);
         outstream.write(cmdbyte, 0, cmdbyte.length);
         outstream.flush();
@@ -98,8 +88,7 @@ public class MyTelnetClient {
         while((!(bufstr = buf.readLine()).equals(""))){
             result.append(bufstr);
         }
-        //Log.d("aster", "result.toString() = "+result.toString());
-       return result.toString();
+        return result.toString();
     }
     public InputStreamReader spawnSpy() throws InterruptedException, IOException {
         PipedInputStream in = new PipedInputStream();

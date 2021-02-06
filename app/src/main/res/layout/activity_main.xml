@@ -4,239 +4,203 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    tools:visibility="invisible">
+    tools:context=".MainActivity">
 
-    <RelativeLayout
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/sliding_layout"
+
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:umanoFadeColor="#00FFFFFF"
+        app:umanoPanelHeight="60dp">
 
         <LinearLayout
-            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:background="#FFFFFF"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
+                    android:id="@+id/linearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:background="#FFFFFF"
                         android:orientation="horizontal">
 
-                        <Space
-                            android:layout_width="10dp"
-                            android:layout_height="match_parent" />
-
                         <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:focusable="auto"
-                            android:focusableInTouchMode="true"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
                             android:orientation="vertical">
 
                             <Space
                                 android:layout_width="match_parent"
                                 android:layout_height="10dp" />
 
-                            <ImageView
-                                android:id="@+id/imageView2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:srcCompat="@drawable/ic_baseline_search_24" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal">
+
+                                <Space
+                                    android:layout_width="10dp"
+                                    android:layout_height="match_parent" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:focusable="auto"
+                                    android:focusableInTouchMode="true"
+                                    android:orientation="vertical">
+
+                                    <Space
+                                        android:layout_width="match_parent"
+                                        android:layout_height="10dp" />
+
+                                    <ImageView
+                                        android:id="@+id/imageView2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:contentDescription="TODO"
+                                        app:srcCompat="@drawable/ic_baseline_search_24" />
+                                </LinearLayout>
+
+                                <Space
+                                    android:layout_width="10dp"
+                                    android:layout_height="match_parent" />
+
+                                <EditText
+                                    android:id="@+id/editText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:ems="10"
+                                    android:inputType="textPersonName" />
+
+                                <Space
+                                    android:layout_width="20dp"
+                                    android:layout_height="match_parent" />
+
+                            </LinearLayout>
+
+                            <Space
+                                android:layout_width="match_parent"
+                                android:layout_height="10dp" />
                         </LinearLayout>
-
-                        <Space
-                            android:layout_width="10dp"
-                            android:layout_height="match_parent" />
-
-                        <EditText
-                            android:id="@+id/editText"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:ems="10"
-                            android:inputType="textPersonName" />
-
-                        <Space
-                            android:layout_width="20dp"
-                            android:layout_height="match_parent" />
 
                     </LinearLayout>
 
-                    <Space
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="10dp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/layoutDialer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="5"
-                android:background="#376677"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="#FD5F07"
-                    android:orientation="vertical">
-
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="15dp"
-                        android:layout_weight="1" />
-
-                    <ImageView
-                        android:id="@+id/imageDialer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        app:srcCompat="@drawable/ic_baseline_dialpad_24" />
+                        android:orientation="horizontal">
 
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="15dp"
-                        android:layout_weight="1" />
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
                 </LinearLayout>
-            </LinearLayout>
+
+            </RelativeLayout>
+
         </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/keypadLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="0dp"
-            android:visibility="invisible">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
+                android:id="@+id/LinearLayout1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FFFFFF"
+                android:background="@drawable/asterisk"
                 android:orientation="vertical">
 
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="15dp"
-                    android:background="@color/colorPrimary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <EditText
-                        android:id="@+id/inputNumber"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_weight="1"
-                        android:focusableInTouchMode="true"
-                        android:gravity="center"
-                        android:textSize="30sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal|center_vertical"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/butDel"
+                        <EditText
+                            android:id="@+id/inputNumber"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_margin="2dp"
-                            android:layout_marginStart="2dp"
-                            android:layout_marginLeft="2dp"
-                            android:layout_marginTop="2dp"
-                            android:layout_marginEnd="2dp"
-                            android:layout_marginRight="2dp"
-                            android:layout_marginBottom="2dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
                             android:layout_weight="1"
-                            android:background="@drawable/asterisk"
-                            android:text="DEL"
+                            android:background="@null"
+                            android:focusableInTouchMode="true"
+                            android:gravity="center"
+                            android:inputType="number"
                             android:textColor="#FFFFFF"
                             android:textSize="30sp" />
 
-                        <Space
-                            android:layout_width="15dp"
-                            android:layout_height="match_parent" />
+                        <ImageButton
+                            android:id="@+id/butDel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="false"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginLeft="2dp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginEnd="2dp"
+                            android:layout_marginRight="2dp"
+                            android:layout_marginBottom="2dp"
+                            android:background="@drawable/asterisk"
 
-                    </LinearLayout>
+                            android:foregroundGravity="right"
+                            android:src="@drawable/ic_baseline_dialpad_24" />
+                    </RelativeLayout>
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#FFFFFF"
                     android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/but1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="2dp"
-                        android:layout_marginStart="2dp"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
-                        android:textColor="#FFFFFF"
                         android:text="1"
+                        android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
                     <Button
                         android:id="@+id/but2"
-                        style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_margin="2dp"
-                        android:layout_marginStart="2dp"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginBottom="2dp"
                         android:background="@drawable/asterisk"
-                        android:textColor="#FFFFFF"
                         android:text="2"
+                        android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
                     <Button
@@ -244,16 +208,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_margin="2dp"
-                        android:layout_marginStart="2dp"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginBottom="2dp"
                         android:background="@drawable/asterisk"
-                        android:textColor="#FFFFFF"
                         android:text="3"
+                        android:textColor="#FFFFFF"
                         android:textSize="30sp" />
                 </LinearLayout>
 
@@ -266,7 +223,6 @@
                         android:id="@+id/but4"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="4"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -276,6 +232,7 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="4"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
@@ -283,7 +240,6 @@
                         android:id="@+id/but5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="5"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -293,6 +249,7 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="5"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
@@ -300,7 +257,6 @@
                         android:id="@+id/but6"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="6"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -310,6 +266,7 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="6"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
                 </LinearLayout>
@@ -323,7 +280,6 @@
                         android:id="@+id/but7"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="7"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -333,6 +289,7 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="7"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
@@ -340,7 +297,6 @@
                         android:id="@+id/but8"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="8"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -350,6 +306,7 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="8"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
@@ -357,7 +314,6 @@
                         android:id="@+id/but9"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="9"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -367,6 +323,7 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="9"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
                 </LinearLayout>
@@ -380,7 +337,6 @@
                         android:id="@+id/but0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -390,14 +346,14 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
+                        android:text="0"
                         android:textColor="#FFFFFF"
                         android:textSize="30sp" />
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/butCall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CALL"
                         android:layout_margin="2dp"
                         android:layout_marginStart="2dp"
                         android:layout_marginLeft="2dp"
@@ -407,14 +363,16 @@
                         android:layout_marginBottom="2dp"
                         android:layout_weight="1"
                         android:background="@drawable/asterisk"
-                        android:textColor="#FFFFFF"
+
+                        android:src="@drawable/ic_baseline_call_24"
                         android:textSize="30sp" />
 
                 </LinearLayout>
 
             </LinearLayout>
         </RelativeLayout>
-    </RelativeLayout>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
