@@ -5,10 +5,10 @@ import android.os.AsyncTask;
 import static java.lang.Thread.sleep;
 
 abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, String> {
-    private ConnectionCallback callback;
+    private final ConnectionCallback callback;
     private Throwable t;
-    private String param;
-    private String comand;
+    private final String param;
+    private final String comand;
 
     AbstractAsyncWorker(ConnectionCallback callback, java.lang.String comand, java.lang.String param) {
         this.callback = callback;

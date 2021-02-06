@@ -50,7 +50,7 @@ import java.util.Comparator;
 import static java.lang.Thread.sleep;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class MainActivity extends AppCompatActivity implements ConnectionCallback {
+public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
     EditText mySeachText;
     static TelnetTask telnetTask;
@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     Drawable dial, backspace, wait;
     Boolean callingState = false;
     AudioManager audioManager;
+    ConnectionCallback callback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         LinearLayoutManager linearLayoutManager = new GridLayoutManager(this,1);
         recyclerView.setLayoutManager(linearLayoutManager);
         adapter = new RecordAdapter(contactslist,this);
+        adapter.setOnContactClickListener(this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
@@ -439,15 +441,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
     @SuppressLint("StaticFieldLeak")
-    public static void doSomethingAsyncOperaion(final String comand, final String number) {
-        new AbstractAsyncWorker<String>(this,comand,number) {
+    public void doSomethingAsyncOperaion(final String comand, final String number) {
+        new AbstractAsyncWorker<String>(this, comand,number) {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected String doAction() throws Exception {
                 String result = "";
                 if(comand.equals("open")){
-                    Log.d("aster","open telnet");
-                        mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                    mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
                 }
                 if(comand.equals("login")){
                     String com1 = "Action: Login\n"+
@@ -510,6 +511,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onEnd() {
 
+    }
+
+    @Override
+    public void onContactClick(int position) {
+        calling(contacts.get(position).getPhone());
     }
 
     static class TelnetTask extends AsyncTask<String, Void, String> {

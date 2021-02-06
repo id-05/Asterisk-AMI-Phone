@@ -27,6 +27,13 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
     private ArrayList<Contact> contacts;
     private Context context;
 
+    interface OnContactClickListener {
+        void onContactClick(int position);
+    }
+
+    private static OnContactClickListener mListener;
+
+
     RecordAdapter(ArrayList<Contact> contacts, Context context){
         this.contacts = contacts;
         this.context = context;
@@ -61,7 +68,8 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
                 if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
                         & (!amiuser.equals("")) & (!amisecret.equals(""))
                         & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {
-                    MainActivity.doSomethingAsyncOperaion("open", contacts.get(i).getPhone());
+                    mListener.onContactClick(i);
+               //     MainActivity.calling(contacts.get(i).getPhone());
 //                    Toast toast = Toast.makeText(context,
 //                            "Wait Call", Toast.LENGTH_LONG);
 //                    toast.show();
@@ -75,6 +83,10 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
                 }
             }
         });
+    }
+
+    public void setOnContactClickListener(OnContactClickListener listener) {
+        mListener = listener;
     }
 
     static class CallTask extends AsyncTask<String, Void, Void> {
@@ -109,7 +121,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
         return contacts.size();
     }
 
-    static class DISAViewHolder extends RecyclerView.ViewHolder {
+    static class DISAViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener {
         TextView contactName;
         TextView contactPhone;
         LinearLayout contactLayout;
@@ -119,6 +131,12 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
             contactName = itemView.findViewById(R.id.nameContact);
             contactPhone = itemView.findViewById(R.id.phoneContact);
             contactLayout = itemView.findViewById(R.id.recordLayout);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            mListener.onContactClick(position);
         }
     }
 }
