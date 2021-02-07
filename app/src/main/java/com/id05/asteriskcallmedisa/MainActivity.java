@@ -1,6 +1,6 @@
 package com.id05.asteriskcallmedisa;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.core.app.ActivityCompat;
@@ -18,14 +18,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,24 +32,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
-
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
-import static java.lang.Thread.sleep;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
     EditText mySeachText;
-    static TelnetTask telnetTask;
     public static int SERVERPORT;
     public static String SERVER_IP;
     public static String amiuser;
@@ -63,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     private static MyTelnetClient mtc;
     public SharedPreferences sPref;
     private final int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
-    public String TAG = "aster";
     public RecordAdapter adapter;
     public ArrayList<Contact> contacts = new ArrayList<>();
     public ArrayList<Contact> bufcontacts = new ArrayList<>();
@@ -89,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     Drawable dial, backspace, wait;
     Boolean callingState = false;
     AudioManager audioManager;
-    ConnectionCallback callback;
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         inputNumber = findViewById(R.id.inputNumber);
         but0 = findViewById(R.id.but0);
         but0.setOnClickListener(digitClick);
-        but0.playSoundEffect(SoundEffectConstants.CLICK);
         but1 = findViewById(R.id.but1);
         but1.setOnClickListener(digitClick);
         but2 = findViewById(R.id.but2);
@@ -129,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         butCall.setOnClickListener(digitClick);
 
         slPanel = findViewById(R.id.sliding_layout);
+        slPanel.setShadowHeight(0);
         slPanel.addPanelSlideListener(panelSlideListener);
         dial = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
         backspace = getResources().getDrawable(R.drawable.ic_baseline_backspace_24);
@@ -141,11 +125,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED)
         {
-            //Log.d(TAG, "Permission is granted");
             readContacts(this);
         } else {
-            //Log.d(TAG, "Permission is not granted");
-            //Log.d(TAG, "Request permissions");
             ActivityCompat.requestPermissions(this,
                     new String[]{
                             Manifest.permission
@@ -247,10 +228,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
 
     View.OnClickListener digitClick = new View.OnClickListener() {
+        @SuppressLint({"NonConstantResourceId", "SetTextI18n"})
         @Override
         public void onClick(View v) {
             String buf = inputNumber.getText().toString();
-            audioManager.playSoundEffect(SoundEffectConstants.CLICK);
+            audioManager.playSoundEffect(SoundEffectConstants.CLICK,1.0f);
             switch(v.getId()) {
 
                 case R.id.but0: inputNumber.setText(buf+"0");
@@ -274,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 case R.id.but9: inputNumber.setText(buf+"9");
                     break;
                 case R.id.butDel:
+                    v.playSoundEffect(SoundEffectConstants.CLICK);
                     if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
                         slPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                     }
@@ -293,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     };
 
+    @SuppressLint("SetTextI18n")
     public void calling(String number){
         callingState = true;
         slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
@@ -307,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             new SlidingUpPanelLayout.PanelSlideListener() {
                 @Override
                 public void onPanelSlide(View view, float v) {
-                    //Log.d("aster","state = "+slPanel.getPanelState().toString());
+
                 }
 
                 @Override
@@ -319,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                         if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
                             inputNumber.setText("");
                             butDel.startAnimation(animationRotateLeft);
-                            slPanel.setPanelHeight((int) (60 * context.getResources().getDisplayMetrics().density));
+                            slPanel.setPanelHeight((int) (40 * context.getResources().getDisplayMetrics().density));
                         }
                     }
                 }
@@ -329,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public void onBackPressed() {
         if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
                 slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            Drawable myDrawable = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
+            @SuppressLint("UseCompatLoadingForDrawables") Drawable myDrawable = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
             butDel.setImageDrawable(myDrawable);
         }else {
             super.onBackPressed();
@@ -345,16 +329,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id) {
-            case R.id.settings:
-                ActionMenuItemView image = findViewById(R.id.settings);
-                image.startAnimation(animationRotateLeft);
-                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(i);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (id == R.id.settings) {
+            ActionMenuItemView image = findViewById(R.id.settings);
+            image.startAnimation(animationRotateLeft);
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     public void onSetContacnts(ArrayList<Contact> contactslist){
@@ -368,75 +350,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_CONTACTS : {
-                if ((grantResults.length > 0) &&
-                        (grantResults[0] ==
-                                PackageManager.PERMISSION_GRANTED)) {
-                    readContacts(this);
-                } else {
-                    //Log.d(TAG, "Permission denied!");
-                }
-                return;
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+            if ((grantResults.length > 0) &&
+                    (grantResults[0] ==
+                            PackageManager.PERMISSION_GRANTED)) {
+                readContacts(this);
             }
-        }
-    }
-
-    public static void OpenTelnetClient(){
-        telnetTask = new TelnetTask();
-        telnetTask.execute("open");
-    }
-
-    public static void LoginTelnetClient(){
-        telnetTask = new TelnetTask();
-        String com1 = "Action: Login\n"+
-                "Events: off\n"+
-                "Username: "+amiuser+"\n"+
-                "Secret: "+amisecret+"\n";
-        telnetTask.execute("login",com1);
-    }
-
-    public static void SendCallMeFile(String mynumber, String externalnumber){
-        telnetTask = new TelnetTask();
-        String comenter = "Action: Originate\n" +
-                "Channel: Local/"+mynumber+"@"+astercontext+"\n" +
-                "Exten: "+externalnumber+"\n" +
-                "Context: from-internal\n" +
-                "Priority: 1\n" +
-                "Async: true\n" +
-                "CallerID: "+mynumber+"\n" +
-                "ActionID: 123\n";
-        telnetTask.execute("call",comenter);
-    }
-
-    public static void CloseTelnetClient(){
-        telnetTask = new TelnetTask();
-        String com1 = "Action: Logoff\n";
-        telnetTask.execute("exit",com1);
-    }
-
-    public static void MainProd(String mynumber, String externalnumber) throws IOException {
-        OpenTelnetClient();
-
-        LoginTelnetClient();
-        try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        SendCallMeFile(mynumber, externalnumber);
-        try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        CloseTelnetClient();
-        try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -455,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             "Events: off\n"+
                             "Username: "+amiuser+"\n"+
                             "Secret: "+amisecret+"\n";
-                    Log.d("aster","LOGIN " +mtc.getResponse(com1));
+                    mtc.getResponse(com1);
                 }
                 if(comand.equals("call")){
                     String comenter = "Action: Originate\n" +
@@ -466,14 +387,12 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             "Async: true\n" +
                             "CallerID: "+myphonenumber+"\n" +
                             "ActionID: 123\n";
-                    Log.d("aster","CALL " +mtc.sendCommand(comenter));
+                    mtc.sendCommand(comenter);
                 }
                 if(comand.equals("exit")){
                     String com1 = "Action: Logoff\n";
-                    Log.d("aster","EXIT " +mtc.sendCommand(com1));
+                    mtc.sendCommand(com1);
                 }
-
-
                 return result;
             }
         }.execute();
@@ -518,51 +437,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         calling(contacts.get(position).getPhone());
     }
 
-    static class TelnetTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-        @Override
-        protected String doInBackground(String... param) {
-            if(param[0].equals("open")){
-                Log.d("aster","open telnet");
-                try {
-                    mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(param[0].equals("login")){
-                try {
-                    Log.d("aster","LOGIN " +mtc.getResponse(param[1]));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(param[0].equals("call")){
-                Log.d("aster","CALL " +mtc.sendCommand(param[1]));
-            }
-            if(param[0].equals("exit")){
-                Log.d("aster","EXIT " +mtc.sendCommand(param[1]));
-            }
-
-            return param[0];
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.d("aster","return task "+result);
-        }
-    }
-
     private void readContacts(Context context)
     {
         Contact contact;
-        Cursor cursor=context.getContentResolver().query(
+        @SuppressLint("Recycle") Cursor cursor=context.getContentResolver().query(
                 ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
 
@@ -614,7 +492,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     }
 
-    public class NameSorter implements Comparator<Contact> {
+    public static class NameSorter implements Comparator<Contact> {
         @Override
         public int compare(Contact contact1, Contact contact2) {
             return contact1.getName().compareTo(contact2.getName());
@@ -630,8 +508,5 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         astercontext = sPref.getString("CONTEXT", "from-internal");
         myphonenumber = sPref.getString("MYPHONE", "");
     }
-
-
-
 
 }

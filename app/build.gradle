@@ -28,10 +28,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.google.android.material:material:1.1.0-alpha06"
+    implementation "com.google.android.material:material:1.3.0"
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
-    implementation 'junit:junit:4.12'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'junit:junit:4.13.1'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation files('C:\\Users\\id-05\\Dropbox\\PROGRAMS_ANDROID\\AsteriskcallmeDISA\\externallib\\commons-io-2.6.jar')
     implementation files('C:\\Users\\id-05\\Dropbox\\PROGRAMS_ANDROID\\AsteriskcallmeDISA\\externallib\\apache-commons-net.jar')

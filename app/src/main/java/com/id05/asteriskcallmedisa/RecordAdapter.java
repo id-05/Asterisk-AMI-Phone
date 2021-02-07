@@ -2,30 +2,22 @@ package com.id05.asteriskcallmedisa;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
 import static com.id05.asteriskcallmedisa.MainActivity.*;
-import static java.lang.Thread.sleep;
 
 public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHolder>  {
 
-    private ArrayList<Contact> contacts;
-    private Context context;
+    private final ArrayList<Contact> contacts;
+    private final Context context;
 
     interface OnContactClickListener {
         void onContactClick(int position);
@@ -69,13 +61,6 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
                         & (!amiuser.equals("")) & (!amisecret.equals(""))
                         & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {
                     mListener.onContactClick(i);
-               //     MainActivity.calling(contacts.get(i).getPhone());
-//                    Toast toast = Toast.makeText(context,
-//                            "Wait Call", Toast.LENGTH_LONG);
-//                    toast.show();
-//                    CallTask callTask = new CallTask();
-//                    callTask.execute(contacts.get(i).getPhone());
-                 //   MainActivity.calling(contacts.get(i).getPhone());
                 }else{
                     Toast toast = Toast.makeText(context,
                             "Сheck your settings", Toast.LENGTH_LONG);
@@ -87,33 +72,6 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
 
     public void setOnContactClickListener(OnContactClickListener listener) {
         mListener = listener;
-    }
-
-    static class CallTask extends AsyncTask<String, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(String... param) {
-            try{
-                TimeUnit.SECONDS.sleep(5);
-                try {
-                    MainActivity.MainProd(myphonenumber, param[0]);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
     }
 
     @Override

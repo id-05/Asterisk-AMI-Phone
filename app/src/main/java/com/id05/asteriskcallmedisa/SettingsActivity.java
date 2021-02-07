@@ -2,6 +2,7 @@ package com.id05.asteriskcallmedisa;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,9 +13,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
-
-
-
 import java.io.IOException;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
@@ -26,9 +24,13 @@ import static java.lang.Thread.sleep;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    @SuppressLint("StaticFieldLeak")
     static EditText ipaddrEdit;
+    @SuppressLint("StaticFieldLeak")
     static EditText portEdit;
+    @SuppressLint("StaticFieldLeak")
     static EditText amiuserEdit;
+    @SuppressLint("StaticFieldLeak")
     static EditText amisecretEdit;
     EditText asteriskcontextEdit;
     EditText myphonenumberEdit;
@@ -36,6 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
     Button saveBut;
     Button cancelBut;
     public SharedPreferences sPref;
+    @SuppressLint("StaticFieldLeak")
     static LinearLayout settinglayout;
     private static MyTelnetClient mtc;
     TelnetTask telnetTask, telnetTaskTest;
@@ -114,7 +117,7 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 buf = "open";
             }
-            if(param[0].equals("login")){  //if(param[0].equals("login")&(mtc!=null)){
+            if(param[0].equals("login")){
                 try {
                     buf = mtc.getResponse(param[1]);
                 } catch (IOException e) {
@@ -183,6 +186,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
     };
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onStart() {
         super.onStart();
