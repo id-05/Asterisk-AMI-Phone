@@ -305,6 +305,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             butDel.startAnimation(animationRotateLeft);
                             slPanel.setPanelHeight((int) (40 * context.getResources().getDisplayMetrics().density));
                         }
+                    }else{
+                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                            slPanel.setEnabled(false);
+                        }
                     }
                 }
             };
@@ -316,7 +320,15 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             @SuppressLint("UseCompatLoadingForDrawables") Drawable myDrawable = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
             butDel.setImageDrawable(myDrawable);
         }else {
-            super.onBackPressed();
+            if(callingState){
+                inputNumber.setText("");
+                butDel.setImageDrawable(dial);
+                butDel.startAnimation(animationRotateLeft);
+                callingState = false;
+                slPanel.setEnabled(true);
+            }else {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -333,6 +345,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             ActionMenuItemView image = findViewById(R.id.settings);
             image.startAnimation(animationRotateLeft);
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            inputNumber.setText("");
             startActivity(i);
             return true;
         }
@@ -363,11 +377,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     @SuppressLint("StaticFieldLeak")
     public void doSomethingAsyncOperaion(final String comand, final String number) {
-        new AbstractAsyncWorker<String>(this, comand,number) {
+        new AbstractAsyncWorker<Boolean>(this, comand,number) {
             @SuppressLint("StaticFieldLeak")
             @Override
-            protected String doAction() throws Exception {
-                String result = "";
+            protected Boolean doAction() throws Exception {
+                
                 if(comand.equals("open")){
                     mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
                 }
@@ -393,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     String com1 = "Action: Logoff\n";
                     mtc.sendCommand(com1);
                 }
-                return result;
+                return true;
             }
         }.execute();
     }
@@ -419,12 +433,13 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             butDel.setImageDrawable(dial);
             butDel.startAnimation(animationRotateLeft);
             callingState = false;
+            slPanel.setEnabled(true);
         }
     }
 
     @Override
     public void onFailure(Throwable t) {
-        Log.d("aster"," failure");
+        //Log.d("aster"," failure");
     }
 
     @Override
