@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     String comenter = "Action: Originate\n" +
                             "Channel: Local/"+myphonenumber+"@"+astercontext+"\n" +
                             "Exten: "+number+"\n" +
-                            "Context: from-internal\n" +
+                            "Context: "+astercontext+"\n" +
                             "Priority: 1\n" +
                             "Async: true\n" +
                             "CallerID: "+myphonenumber+"\n" +
