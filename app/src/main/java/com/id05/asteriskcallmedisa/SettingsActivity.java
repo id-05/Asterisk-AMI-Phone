@@ -1,7 +1,6 @@
 package com.id05.asteriskcallmedisa;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -22,7 +21,7 @@ import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
 import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
 import static java.lang.Thread.sleep;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements ConnectionCallback {
 
     @SuppressLint("StaticFieldLeak")
     static EditText ipaddrEdit;
@@ -42,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
     static LinearLayout settinglayout;
     private static MyTelnetClient mtc;
     TelnetTask telnetTask, telnetTaskTest;
+    AmiState amistate;
 
 
     @Override
@@ -100,6 +100,76 @@ public class SettingsActivity extends AppCompatActivity {
             }
         }
     };
+
+    @SuppressLint("StaticFieldLeak")
+    public void doSomethingAsyncOperaion(final AmiState amistate) {
+        new AbstractAsyncWorker<Boolean>(this, amistate) {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected AmiState doAction() throws Exception {
+                if(amistate.action.equals("open")){
+                    mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                    amistate.setResultOperation(mtc.isConnected());
+                }
+                if(amistate.action.equals("login")){
+                    String com1 = "Action: Login\n"+
+                            "Events: off\n"+
+                            "Username: "+amiuser+"\n"+
+                            "Secret: "+amisecret+"\n";
+                    String buf = mtc.getResponse(com1);
+                    amistate.setResultOperation(true);
+                    if(buf.equals("Response: SuccessMessage: Authentication accepted")){
+                        amistate.setResultOperation(true);
+                    }else{
+                        amistate.setResultOperation(false);
+                    }
+                    amistate.setDescription(buf);
+                }
+                if(amistate.action.equals("exit")){
+                    String com1 = "Action: Logoff\n";
+                    mtc.sendCommand(com1);
+                    amistate.setResultOperation(true);
+                    amistate.setDescription("");
+                }
+                return amistate;
+            }
+        }.execute();
+    }
+
+    @Override
+    public void onBegin() {
+
+    }
+
+    @Override
+    public void onSuccess(AmiState amistate) {
+        String buf = amistate.getAction();
+        if(buf.equals("open")){
+            amistate.setAction("login");
+            doSomethingAsyncOperaion(amistate);
+        }
+        if(buf.equals("login")){
+            amistate.setAction("exit");
+            doSomethingAsyncOperaion(amistate);
+        }
+        if(buf.equals("exit")){
+            Snackbar.make(settinglayout,
+                    R.string.SUCCESS,
+                    Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onFailure(AmiState amistate) {
+        Snackbar.make(settinglayout,
+                R.string.FAILURE,
+                Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onEnd() {
+
+    }
 
     static class TelnetTask extends AsyncTask<String, Void, String> {
         @Override

@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     Drawable dial, backspace, wait;
     Boolean callingState = false;
     AudioManager audioManager;
+    AmiState amistate = new AmiState();
 
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
@@ -283,7 +284,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         butDel.setImageDrawable(wait);
         butDel.startAnimation(animationWait);
         inputNumber.setText("WAIT");
-        doSomethingAsyncOperaion("open", number);
+        amistate.action = "open";
+        amistate.instruction = number;
+        doSomethingAsyncOperaion(amistate);
     }
 
 
@@ -376,38 +379,48 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void doSomethingAsyncOperaion(final String comand, final String number) {
-        new AbstractAsyncWorker<Boolean>(this, comand,number) {
+    public void doSomethingAsyncOperaion(final AmiState amistate) {
+        new AbstractAsyncWorker<Boolean>(this, amistate) {
             @SuppressLint("StaticFieldLeak")
             @Override
-            protected Boolean doAction() throws Exception {
-                
-                if(comand.equals("open")){
+            protected AmiState doAction() throws Exception {
+                if(amistate.action.equals("open")){
                     mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                    amistate.setResultOperation(mtc.isConnected());
                 }
-                if(comand.equals("login")){
+                if(amistate.action.equals("login")){
                     String com1 = "Action: Login\n"+
                             "Events: off\n"+
                             "Username: "+amiuser+"\n"+
                             "Secret: "+amisecret+"\n";
-                    mtc.getResponse(com1);
+                    String buf = mtc.getResponse(com1);
+                    amistate.setResultOperation(true);
+                    if(buf.equals("Response: SuccessMessage: Authentication accepted")){
+                        amistate.setResultOperation(true);
+                    }else{
+                        amistate.setResultOperation(false);
+                    }
+                    amistate.setDescription(buf);
                 }
-                if(comand.equals("call")){
+                if(amistate.action.equals("call")){
                     String comenter = "Action: Originate\n" +
                             "Channel: Local/"+myphonenumber+"@"+astercontext+"\n" +
-                            "Exten: "+number+"\n" +
+                            "Exten: "+amistate.instruction+"\n" +
                             "Context: "+astercontext+"\n" +
                             "Priority: 1\n" +
                             "Async: true\n" +
                             "CallerID: "+myphonenumber+"\n" +
                             "ActionID: 123\n";
-                    mtc.sendCommand(comenter);
+                    Boolean buf = mtc.sendCommand(comenter);
+                    amistate.setResultOperation(buf);
                 }
-                if(comand.equals("exit")){
+                if(amistate.action.equals("exit")){
                     String com1 = "Action: Logoff\n";
                     mtc.sendCommand(com1);
+                    amistate.setResultOperation(true);
+                    amistate.setDescription("");
                 }
-                return true;
+                return amistate;
             }
         }.execute();
     }
@@ -418,17 +431,21 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
     @Override
-    public void onSuccess(String data, String param) {
-        if(data.equals("open")){
-            doSomethingAsyncOperaion("login",param);
+    public void onSuccess(AmiState amistate) {
+        String buf = amistate.getAction();
+        if(buf.equals("open")){
+            amistate.setAction("login");
+            doSomethingAsyncOperaion(amistate);
         }
-        if(data.equals("login")){
-            doSomethingAsyncOperaion("call",param);
+        if(buf.equals("login")){
+            amistate.setAction("call");
+            doSomethingAsyncOperaion(amistate);
         }
-        if(data.equals("call")){
-            doSomethingAsyncOperaion("exit",param);
+        if(buf.equals("call")){
+            amistate.setAction("exit");
+            doSomethingAsyncOperaion(amistate);
         }
-        if(data.equals("exit")){
+        if(buf.equals("exit")){
             inputNumber.setText("");
             butDel.setImageDrawable(dial);
             butDel.startAnimation(animationRotateLeft);
@@ -438,8 +455,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
     @Override
-    public void onFailure(Throwable t) {
-        //Log.d("aster"," failure");
+    public void onFailure(AmiState amistate) {
+        inputNumber.setText(amistate.getAction()+" error");
+        butDel.setImageDrawable(dial);
+        callingState = true;
     }
 
     @Override

@@ -4,16 +4,14 @@ import android.os.AsyncTask;
 
 import static java.lang.Thread.sleep;
 
-abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, String> {
+abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, AmiState> {
     private final ConnectionCallback callback;
     private Throwable t;
-    private final String param;
-    private final String comand;
+    private AmiState amistate = new AmiState();
 
-    AbstractAsyncWorker(ConnectionCallback callback, java.lang.String comand, java.lang.String param) {
+    AbstractAsyncWorker(ConnectionCallback callback, AmiState amistate) {
         this.callback = callback;
-        this.param = (String) param;
-        this.comand = (String) comand;
+        this.amistate = amistate;
     }
 
     @Override
@@ -24,21 +22,24 @@ abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, String>
         }
     }
 
-    protected abstract String doAction() throws Exception;
+    protected abstract AmiState doAction() throws Exception;
 
     @Override
-    protected String doInBackground(Void... params) {
+    protected AmiState doInBackground(Void... params) {
         try {
+            amistate.setResultOperation(true);
+            amistate.setDescription("");
 
             return doAction();
         } catch (Exception e) {
-            t = e;
-            return null;
+            amistate.setResultOperation(false);
+            amistate.setDescription(e.getMessage());
+            return amistate;
         }
     }
 
     @Override
-    protected void onPostExecute(String v) {
+    protected void onPostExecute(AmiState v) {
         super.onPostExecute(v);
         if (callback != null) {
             callback.onEnd();
@@ -48,17 +49,18 @@ abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, String>
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        generateCallback(comand, param);
+        generateCallback(amistate);
     }
 
-    private void generateCallback(String data, String param) {
+    private void generateCallback(AmiState amistate) {
         if (callback == null) return;
-        if (data != null) {
-            callback.onSuccess((java.lang.String) data,  (java.lang.String) param);
-        } else if (t != null) {
-            callback.onFailure(t);
-        } else {
-            callback.onFailure(new NullPointerException("Result is empty but error empty too"));
+        if (amistate.getResultOperation()) {
+            callback.onSuccess(amistate);
+        } else if (!amistate.getResultOperation()) {
+            callback.onFailure(amistate);
         }
+//        } else {
+//            callback.onFailure(new NullPointerException("Result is empty but error empty too"));
+//        }
     }
 }
