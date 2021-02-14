@@ -394,8 +394,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             "Username: "+amiuser+"\n"+
                             "Secret: "+amisecret+"\n";
                     String buf = mtc.getResponse(com1);
-                    amistate.setResultOperation(true);
-                    if(buf.equals("Response: SuccessMessage: Authentication accepted")){
+                    if(buf.contains("Response: SuccessMessage: Authentication accepted")){
                         amistate.setResultOperation(true);
                     }else{
                         amistate.setResultOperation(false);
