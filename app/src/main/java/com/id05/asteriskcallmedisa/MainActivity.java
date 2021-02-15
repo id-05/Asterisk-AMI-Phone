@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SoundEffectConstants;
@@ -394,11 +393,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             "Username: "+amiuser+"\n"+
                             "Secret: "+amisecret+"\n";
                     String buf = mtc.getResponse(com1);
-                    if(buf.contains("Response: SuccessMessage: Authentication accepted")){
-                        amistate.setResultOperation(true);
-                    }else{
-                        amistate.setResultOperation(false);
-                    }
+                    amistate.setResultOperation(buf.contains("Response: SuccessMessage: Authentication accepted"));
                     amistate.setDescription(buf);
                 }
                 if(amistate.action.equals("call")){
@@ -453,6 +448,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onFailure(AmiState amistate) {
         inputNumber.setText(amistate.getAction()+" error");

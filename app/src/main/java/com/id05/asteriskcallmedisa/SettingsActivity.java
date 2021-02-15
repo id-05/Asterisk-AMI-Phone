@@ -41,8 +41,6 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
     static LinearLayout settinglayout;
     private static MyTelnetClient mtc;
     TelnetTask telnetTask, telnetTaskTest;
-    AmiState amistate;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,11 +116,7 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
                             "Secret: "+amisecret+"\n";
                     String buf = mtc.getResponse(com1);
                     amistate.setResultOperation(true);
-                    if(buf.equals("Response: SuccessMessage: Authentication accepted")){
-                        amistate.setResultOperation(true);
-                    }else{
-                        amistate.setResultOperation(false);
-                    }
+                    amistate.setResultOperation(buf.equals("Response: SuccessMessage: Authentication accepted"));
                     amistate.setDescription(buf);
                 }
                 if(amistate.action.equals("exit")){

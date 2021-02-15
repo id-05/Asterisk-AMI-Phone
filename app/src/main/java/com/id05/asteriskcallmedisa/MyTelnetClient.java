@@ -1,9 +1,6 @@
 package com.id05.asteriskcallmedisa;
 
-import android.util.Log;
-
 import org.apache.commons.io.input.TeeInputStream;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,22 +9,10 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.LinkedList;
-import java.util.Locale;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.lang.Thread.sleep;
-
 
 public class MyTelnetClient {
-    private MyTelnetConnection client;
-    private OutputStream outstream;
+    private final MyTelnetConnection client;
+    private final OutputStream outstream;
     private org.apache.commons.net.telnet.TelnetClient rawConnection;
     private InputStream instream;
     private LinkedList<Thread> threads = new LinkedList();
@@ -110,8 +95,4 @@ public class MyTelnetClient {
         return client.isConnected();
     }
 
-    public boolean disconnect() {
-        spyReader = null;
-        return client.disconnect();
-    }
 }
