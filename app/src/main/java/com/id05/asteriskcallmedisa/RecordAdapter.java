@@ -54,9 +54,6 @@ public class RecordAdapter extends RecyclerView.Adapter<RecordAdapter.DISAViewHo
 
                 disaViewHolder.contactLayout.setBackgroundColor(Color.GRAY);
                 notifyItemChanged(i);
-                Log.d("aster",!SERVER_IP.equals("") +"  "+ (SERVERPORT > 0)
-                        +"  "+ (!amiuser.equals("")) +"  "+ (!amisecret.equals(""))
-                        +"  "+ (!astercontext.equals("")) +"  "+ (!myphonenumber.equals("")));
                 if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
                         & (!amiuser.equals("")) & (!amisecret.equals(""))
                         & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {

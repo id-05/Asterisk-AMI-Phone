@@ -3,23 +3,19 @@ package com.id05.asteriskcallmedisa;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.google.android.material.snackbar.Snackbar;
-import java.io.IOException;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
 import static com.id05.asteriskcallmedisa.MainActivity.amisecret;
 import static com.id05.asteriskcallmedisa.MainActivity.amiuser;
 import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
 import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
-import static java.lang.Thread.sleep;
 
 public class SettingsActivity extends AppCompatActivity implements ConnectionCallback {
 
@@ -40,7 +36,6 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
     @SuppressLint("StaticFieldLeak")
     static LinearLayout settinglayout;
     private static MyTelnetClient mtc;
-    TelnetTask telnetTask, telnetTaskTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,21 +62,9 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
 
             if((!ipaddrEdit.getText().toString().equals("")) & (!portEdit.getText().toString().equals(""))
                     & (!amiuserEdit.getText().toString().equals("")) & (!amisecretEdit.getText().toString().equals(""))) {
-                telnetTask = new TelnetTask();
-                telnetTask.execute("open");
-
-                try {
-                    sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                telnetTaskTest = new TelnetTask();
-                String com1 = "Action: Login\n" +
-                        "Events: off\n" +
-                        "Username: " + amiuserEdit.getText().toString() + "\n" +
-                        "Secret: " + amisecretEdit.getText().toString() + "\n";
-                telnetTaskTest.execute("login", com1);
+                AmiState amistate = new AmiState();
+                amistate.action="open";
+                doSomethingAsyncOperaion(amistate);
             }else{
                 if(ipaddrEdit.getText().toString().equals("")){
                     Toast toast = Toast.makeText(SettingsActivity.this, "Empty IP", Toast.LENGTH_SHORT); toast.show();
@@ -116,7 +99,7 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
                             "Secret: "+amisecret+"\n";
                     String buf = mtc.getResponse(com1);
                     amistate.setResultOperation(true);
-                    amistate.setResultOperation(buf.equals("Response: SuccessMessage: Authentication accepted"));
+                    amistate.setResultOperation(buf.contains("Response: SuccessMessage: Authentication accepted"));
                     amistate.setDescription(buf);
                 }
                 if(amistate.action.equals("exit")){
@@ -163,53 +146,6 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
     @Override
     public void onEnd() {
 
-    }
-
-    static class TelnetTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-        @Override
-        protected String doInBackground(String... param) {
-            String buf = "";
-            if(param[0].equals("open")){
-                try {
-                    mtc = new MyTelnetClient(ipaddrEdit.getText().toString(),Integer.parseInt(portEdit.getText().toString()));
-                } catch (Exception e) {
-                    Log.d("aster","error of creat client");
-                }
-                buf = "open";
-            }
-            if(param[0].equals("login")){
-                try {
-                    buf = mtc.getResponse(param[1]);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return buf;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.d("aster","result = "+result);
-            if(!result.equals("open"))
-            {
-                if(result.equals("Response: SuccessMessage: Authentication accepted")){
-                    Snackbar.make(settinglayout,
-                            R.string.SUCCESS,
-                                Snackbar.LENGTH_LONG).show();
-                }else{
-                    Snackbar.make(settinglayout,
-                            R.string.FAILURE,
-                            Snackbar.LENGTH_LONG).show();
-                }
-            }
-        }
     }
 
     View.OnClickListener saveClick = new View.OnClickListener() {
