@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SoundEffectConstants;
@@ -278,6 +279,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     @SuppressLint("SetTextI18n")
     public void calling(String number){
+        String buf = number.replace(" ","");
+        number = buf.replace("-","");
         callingState = true;
         slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         butDel.setImageDrawable(wait);
@@ -405,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             "Async: true\n" +
                             "CallerID: "+myphonenumber+"\n" +
                             "ActionID: 123\n";
+                    Log.d("aster","comenter = "+comenter);
                     Boolean buf = mtc.sendCommand(comenter);
                     amistate.setResultOperation(buf);
                 }
@@ -463,7 +467,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     @Override
     public void onContactClick(int position) {
-        calling(contacts.get(position).getPhone());
+        if(mySeachText.getText().length()>=1) {
+            calling(bufcontacts.get(position).getPhone());
+        }else{
+            calling(contacts.get(position).getPhone());
+        }
     }
 
     private void readContacts(Context context)
