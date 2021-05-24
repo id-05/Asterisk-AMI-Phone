@@ -1,15 +1,17 @@
 package com.id05.asteriskcallmedisa;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,9 +20,11 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -32,12 +36,18 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+
+import com.google.android.material.tabs.TabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
+    private static boolean callingState;
+    public static Drawable wait;
+    private AmiState amistate;
     EditText mySeachText;
     public static int SERVERPORT;
     public static String SERVER_IP;
@@ -48,32 +58,31 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     private static MyTelnetClient mtc;
     public SharedPreferences sPref;
     private final int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
-    public RecordAdapter adapter;
-    public ArrayList<Contact> contacts = new ArrayList<>();
-    public ArrayList<Contact> bufcontacts = new ArrayList<>();
-    RecyclerView recyclerView;
-    EditText inputNumber;
-    Button but0;
-    Button but1;
-    Button but2;
-    Button but3;
-    Button but4;
-    Button but5;
-    Button but6;
-    Button but7;
-    Button but8;
-    Button but9;
-    ImageButton butDel;
+    //public RecordAdapter adapter;
+    public static final ArrayList<Contact> contacts = new ArrayList<>();
+    //public ArrayList<Contact> bufcontacts = new ArrayList<>();
+    //RecyclerView recyclerView;
+    @SuppressLint("StaticFieldLeak")
+    public static EditText inputNumber;
+    Button but0,but1,but2,but3, but4, but5, but6, but7, but8, but9;
+    @SuppressLint("StaticFieldLeak")
+    static ImageButton butDel;
     ImageButton butCall;
-    private SlidingUpPanelLayout slPanel;
+
+    public static SlidingUpPanelLayout slPanel;
     Context context;
     Animation animationRotateRight = null;
-    Animation animationRotateLeft = null;
-    Animation animationWait = null;
-    Drawable dial, backspace, wait;
-    Boolean callingState = false;
+    public static Animation animationRotateLeft = null;
+    static Animation animationWait = null;
+    public static Drawable dial, backspace;
+    //Boolean callingState = false;
     AudioManager audioManager;
-    AmiState amistate = new AmiState();
+
+    ClipboardManager clipboardManager;
+    ClipData clipData;
+    //AmiState amistate = new AmiState();
+
+    public static ViewPager viewPager;
 
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
@@ -81,11 +90,32 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+
+        viewPager = findViewById(R.id.viewPage);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setNestedScrollingEnabled(true);
+        //recyclerView = findViewById(R.id.recyclerView);
+        //recyclerView.setNestedScrollingEnabled(true);
         inputNumber = findViewById(R.id.inputNumber);
+        clipboardManager=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+        inputNumber.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ClipData data = clipboardManager.getPrimaryClip();
+                ClipData.Item item = data.getItemAt(0);
+
+                String text = item.getText().toString();
+                inputNumber.setText(text);
+                int position = text.length();
+                Editable etext = inputNumber.getText();
+                Selection.setSelection(etext, position);
+
+                return false;
+            }
+        });
+
         but0 = findViewById(R.id.but0);
         but0.setOnClickListener(digitClick);
         but1 = findViewById(R.id.but1);
@@ -108,10 +138,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         but9.setOnClickListener(digitClick);
         butDel = findViewById(R.id.butDel);
         butDel.setOnClickListener(digitClick);
-
         butCall = findViewById(R.id.butCall);
         butCall.setOnClickListener(digitClick);
-
         slPanel = findViewById(R.id.sliding_layout);
         slPanel.setShadowHeight(0);
         slPanel.addPanelSlideListener(panelSlideListener);
@@ -121,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
         loadCONFIG();
 
-        mySeachText = findViewById(R.id.editText);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED)
@@ -135,43 +162,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     PERMISSIONS_REQUEST_READ_CONTACTS);
         }
 
-        mySeachText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(mySeachText.getText().length()>=1) {
-                    bufcontacts.clear();
-                    for (Contact contact : contacts) {
-                        if(contact.getName()!= null && !contact.getName().isEmpty()&& contact.getName().contains(mySeachText.getText())){
-                            bufcontacts.add(contact);
-                        }
-                        onSetContacnts(bufcontacts);
-                    }
-
-                }else{
-                    onSetContacnts(contacts);
-                }
-            }
-        });
-
-        mySeachText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            }
-        });
-
         inputNumber.setKeyListener(null);
-
         animationRotateRight = AnimationUtils.loadAnimation(this, R.anim.rotateright);
         animationRotateRight.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -224,8 +215,108 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
             }
         });
+
+        try {
+            AmiPhonePageAdapter amiPhonePageAdapter = new AmiPhonePageAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+            viewPager.setAdapter(amiPhonePageAdapter);
+            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    viewPager.setCurrentItem(tab.getPosition());
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
+
+        }catch (Exception e){
+           // print("error frag ="+e.toString());
+        }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+            if ((grantResults.length > 0) &&
+                    (grantResults[0] ==
+                            PackageManager.PERMISSION_GRANTED)) {
+                readContacts(this);
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void readContacts(Context context)
+    {
+        Contact contact;
+        @SuppressLint("Recycle") Cursor cursor=context.getContentResolver().query(
+                ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        if(cursor.getCount() > 0) {
+            while(cursor.moveToNext()) {
+                contact = new Contact();
+                String id = cursor.getString(
+                        cursor.getColumnIndex(
+                                ContactsContract.Contacts._ID));
+                contact.setId(id);
+
+                String name = cursor.getString(
+                        cursor.getColumnIndex(
+                                ContactsContract.Contacts
+                                        .DISPLAY_NAME));
+                contact.setName(name);
+
+                String has_phone = cursor.getString(
+                        cursor.getColumnIndex(
+                                ContactsContract.Contacts
+                                        .HAS_PHONE_NUMBER));
+                if (Integer.parseInt(has_phone) > 0) {
+                    Cursor cursor2;
+                    cursor2 = context.getContentResolver().query(
+                            ContactsContract.CommonDataKinds
+                                    .Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds
+                                    .Phone.CONTACT_ID + " = ?",
+                            new String[]{id},
+                            null);
+                    while(cursor2.moveToNext()) {
+                        String phone = cursor2.getString(
+                                cursor2.getColumnIndex(
+                                        ContactsContract.
+                                                CommonDataKinds.
+                                                Phone.NUMBER));
+                        contact.setPhone(phone);
+                    }
+                    cursor2.close();
+                }
+                contacts.add(contact);
+            }
+        }
+
+        Collections.sort(contacts, new Comparator<Contact>() {
+            public int compare(Contact o1, Contact o2) {
+                return o1.getName().toString().compareTo(o2.getName().toString());
+            }
+        });
+    }
+
+    public static class NameSorter implements Comparator<Contact> {
+        @Override
+        public int compare(Contact contact1, Contact contact2) {
+            return contact1.getName().compareTo(contact2.getName());
+        }
+    }
 
 
     View.OnClickListener digitClick = new View.OnClickListener() {
@@ -277,109 +368,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     };
 
-    @SuppressLint("SetTextI18n")
-    public void calling(String number){
-        String buf = number.replace(" ","");
-        number = buf.replace("-","");
-        callingState = true;
-        slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        butDel.setImageDrawable(wait);
-        butDel.startAnimation(animationWait);
-        inputNumber.setText("WAIT");
-        amistate.action = "open";
-        amistate.instruction = number;
-        doSomethingAsyncOperaion(amistate);
-    }
-
-
-    private final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
-            new SlidingUpPanelLayout.PanelSlideListener() {
-                @Override
-                public void onPanelSlide(View view, float v) {
-
-                }
-
-                @Override
-                public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                    if(!callingState){
-                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                            butDel.startAnimation(animationRotateRight);
-                        }
-                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
-                            inputNumber.setText("");
-                            butDel.startAnimation(animationRotateLeft);
-                            slPanel.setPanelHeight((int) (40 * context.getResources().getDisplayMetrics().density));
-                        }
-                    }else{
-                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-                            slPanel.setEnabled(false);
-                        }
-                    }
-                }
-            };
-
-    @Override
-    public void onBackPressed() {
-        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            @SuppressLint("UseCompatLoadingForDrawables") Drawable myDrawable = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
-            butDel.setImageDrawable(myDrawable);
-        }else {
-            if(callingState){
-                inputNumber.setText("");
-                butDel.setImageDrawable(dial);
-                butDel.startAnimation(animationRotateLeft);
-                callingState = false;
-                slPanel.setEnabled(true);
-            }else {
-                super.onBackPressed();
-            }
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.settings) {
-            ActionMenuItemView image = findViewById(R.id.settings);
-            image.startAnimation(animationRotateLeft);
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            inputNumber.setText("");
-            startActivity(i);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void onSetContacnts(ArrayList<Contact> contactslist){
-        recyclerView.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager = new GridLayoutManager(this,1);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new RecordAdapter(contactslist,this);
-        adapter.setOnContactClickListener(this);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
-        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
-            if ((grantResults.length > 0) &&
-                    (grantResults[0] ==
-                            PackageManager.PERMISSION_GRANTED)) {
-                readContacts(this);
-            }
-        }
-    }
-
     @SuppressLint("StaticFieldLeak")
     public void doSomethingAsyncOperaion(final AmiState amistate) {
         new AbstractAsyncWorker<Boolean>(this, amistate) {
@@ -423,6 +411,89 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }.execute();
     }
 
+    @SuppressLint("SetTextI18n")
+    public void calling(String number){
+        String buf = number.replace(" ","");
+        number = buf.replace("-","");
+        callingState = true;
+        slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        butDel.setImageDrawable(wait);
+        butDel.startAnimation(animationWait);
+        inputNumber.setText("WAIT");
+        amistate.action = "open";
+        amistate.instruction = number;
+        doSomethingAsyncOperaion(amistate);
+    }
+
+
+    private final SlidingUpPanelLayout.PanelSlideListener panelSlideListener =
+            new SlidingUpPanelLayout.PanelSlideListener() {
+                @Override
+                public void onPanelSlide(View view, float v) {
+
+                }
+
+                @Override
+                public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                    if(!callingState){
+                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                            butDel.startAnimation(animationRotateRight);
+                        }
+                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED){
+                            inputNumber.setText("");
+                            butDel.startAnimation(animationRotateLeft);
+                            slPanel.setPanelHeight((int) (40 * context.getResources().getDisplayMetrics().density));
+                        }
+                    }else{
+                        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                            slPanel.setEnabled(false);
+                        }
+                    }
+                }
+            };
+
+
+    @Override
+    public void onBackPressed() {
+        if(slPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            @SuppressLint("UseCompatLoadingForDrawables") Drawable myDrawable = getResources().getDrawable(R.drawable.ic_baseline_dialpad_24);
+            butDel.setImageDrawable(myDrawable);
+        }else {
+            if(callingState){
+                inputNumber.setText("");
+                butDel.setImageDrawable(dial);
+                butDel.startAnimation(animationRotateLeft);
+                callingState = false;
+                slPanel.setEnabled(true);
+            }else {
+                super.onBackPressed();
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.settings) {
+            ActionMenuItemView image = findViewById(R.id.settings);
+            image.startAnimation(animationRotateLeft);
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            inputNumber.setText("");
+            startActivity(i);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
     @Override
     public void onBegin() {
 
@@ -433,15 +504,15 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         String buf = amistate.getAction();
         if(buf.equals("open")){
             amistate.setAction("login");
-            doSomethingAsyncOperaion(amistate);
+            //doSomethingAsyncOperaion(amistate);
         }
         if(buf.equals("login")){
             amistate.setAction("call");
-            doSomethingAsyncOperaion(amistate);
+           // doSomethingAsyncOperaion(amistate);
         }
         if(buf.equals("call")){
             amistate.setAction("exit");
-            doSomethingAsyncOperaion(amistate);
+           // doSomethingAsyncOperaion(amistate);
         }
         if(buf.equals("exit")){
             inputNumber.setText("");
@@ -465,77 +536,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     }
 
-    @Override
-    public void onContactClick(int position) {
-        if(mySeachText.getText().length()>=1) {
-            calling(bufcontacts.get(position).getPhone());
-        }else{
-            calling(contacts.get(position).getPhone());
-        }
-    }
-
-    private void readContacts(Context context)
-    {
-        Contact contact;
-        @SuppressLint("Recycle") Cursor cursor=context.getContentResolver().query(
-                ContactsContract.Contacts.CONTENT_URI,
-                null, null, null, null);
-
-        if(cursor.getCount() > 0) {
-            while(cursor.moveToNext()) {
-                contact = new Contact();
-                String id = cursor.getString(
-                        cursor.getColumnIndex(
-                                ContactsContract.Contacts._ID));
-                contact.setId(id);
-
-                String name = cursor.getString(
-                        cursor.getColumnIndex(
-                                ContactsContract.Contacts
-                                        .DISPLAY_NAME));
-                contact.setName(name);
-
-                String has_phone = cursor.getString(
-                        cursor.getColumnIndex(
-                                ContactsContract.Contacts
-                                        .HAS_PHONE_NUMBER));
-                if (Integer.parseInt(has_phone) > 0) {
-                        Cursor cursor2;
-                        cursor2 = context.getContentResolver().query(
-                            ContactsContract.CommonDataKinds
-                                    .Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds
-                                    .Phone.CONTACT_ID + " = ?",
-                            new String[]{id},
-                            null);
-                    while(cursor2.moveToNext()) {
-                        String phone = cursor2.getString(
-                                cursor2.getColumnIndex(
-                                        ContactsContract.
-                                                CommonDataKinds.
-                                                Phone.NUMBER));
-                        contact.setPhone(phone);
-                    }
-                    cursor2.close();
-                }
-                contacts.add(contact);
-            }
-        }
-        //if(contacts.size()>2) {
-          // Collections.sort(contacts, new NameSorter());
-        //}
-        onSetContacnts(contacts);
-
-    }
-
-    public static class NameSorter implements Comparator<Contact> {
-        @Override
-        public int compare(Contact contact1, Contact contact2) {
-            return contact1.getName().compareTo(contact2.getName());
-        }
-    }
-
     public void loadCONFIG() {
         sPref = getSharedPreferences("config",MODE_PRIVATE);
         SERVER_IP = sPref.getString("IP", "");
@@ -546,4 +546,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         myphonenumber = sPref.getString("MYPHONE", "");
     }
 
+    @Override
+    public void onContactClick(int position) {
+
+    }
 }
