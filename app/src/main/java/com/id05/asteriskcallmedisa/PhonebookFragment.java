@@ -23,7 +23,9 @@ import static com.id05.asteriskcallmedisa.MainActivity.animationRotateLeft;
 import static com.id05.asteriskcallmedisa.MainActivity.animationWait;
 import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
 import static com.id05.asteriskcallmedisa.MainActivity.butDel;
+import static com.id05.asteriskcallmedisa.MainActivity.callAddBase;
 import static com.id05.asteriskcallmedisa.MainActivity.dial;
+import static com.id05.asteriskcallmedisa.MainActivity.getFullCurrentDate;
 import static com.id05.asteriskcallmedisa.MainActivity.inputNumber;
 import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
 import static com.id05.asteriskcallmedisa.MainActivity.slPanel;
@@ -53,7 +55,6 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -119,14 +120,17 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
     @Override
     public void onContactClick(int position) {
         if(mySeachText.getText().length()>=1) {
-            calling(bufcontacts.get(position).getPhone());
+            calling(bufcontacts.get(position));
         }else{
-            calling(contacts.get(position).getPhone());
+            calling(contacts.get(position));
         }
     }
 
     @SuppressLint("SetTextI18n")
-    public void calling(String number){
+    public void calling(Contact contact){
+        callAddBase(new Call(contact.getName(),contact.getPhone(),getFullCurrentDate()));
+        CallsFragment.adapter.notifyDataSetChanged();
+        String number = contact.getPhone();
         String buf = number.replace(" ","");
         number = buf.replace("-","");
         callingState = true;

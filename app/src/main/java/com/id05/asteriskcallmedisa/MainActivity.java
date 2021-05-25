@@ -12,12 +12,15 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
@@ -39,16 +42,21 @@ import android.widget.ImageButton;
 
 import com.google.android.material.tabs.TabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
     private static boolean callingState;
     public static Drawable wait;
     private AmiState amistate;
-    EditText mySeachText;
+
     public static int SERVERPORT;
     public static String SERVER_IP;
     public static String amiuser;
@@ -58,10 +66,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     private static MyTelnetClient mtc;
     public SharedPreferences sPref;
     private final int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
-    //public RecordAdapter adapter;
     public static final ArrayList<Contact> contacts = new ArrayList<>();
-    //public ArrayList<Contact> bufcontacts = new ArrayList<>();
-    //RecyclerView recyclerView;
+    public static final ArrayList<Call> calls = new ArrayList<>();
+    public static DateBase dbHelper;
     @SuppressLint("StaticFieldLeak")
     public static EditText inputNumber;
     Button but0,but1,but2,but3, but4, but5, but6, but7, but8, but9;
@@ -75,12 +82,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public static Animation animationRotateLeft = null;
     static Animation animationWait = null;
     public static Drawable dial, backspace;
-    //Boolean callingState = false;
     AudioManager audioManager;
 
     ClipboardManager clipboardManager;
     ClipData clipData;
-    //AmiState amistate = new AmiState();
 
     public static ViewPager viewPager;
 
@@ -91,13 +96,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         setContentView(R.layout.activity_main);
         context = this;
 
+        dbHelper = new DateBase(this);
+
         viewPager = findViewById(R.id.viewPage);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        //recyclerView = findViewById(R.id.recyclerView);
-        //recyclerView.setNestedScrollingEnabled(true);
+
         inputNumber = findViewById(R.id.inputNumber);
         clipboardManager=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
         inputNumber.setOnLongClickListener(new View.OnLongClickListener() {
@@ -254,6 +260,52 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     }
 
+    public static ArrayList<Call> getCallList(){
+        SQLiteDatabase userDB = dbHelper.getWritableDatabase();
+        ArrayList<Call> bufList = new ArrayList<>();
+            Cursor cursor = userDB.query("calls", null, null, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                do {
+                    print(cursor.getString(cursor.getColumnIndex("name")));
+                    Call call = new Call(
+                            cursor.getString(cursor.getColumnIndex("name")),
+                            cursor.getString(cursor.getColumnIndex("number")),
+                            cursor.getString(cursor.getColumnIndex("datecall")));
+                    bufList.add(call);
+                }
+                while (cursor.moveToNext());
+                cursor.close();
+            }
+            return bufList;
+    }
+
+    public static void callAddBase(Call call){
+        ContentValues newValues = new ContentValues();
+        newValues.put("name",call.getName());
+        newValues.put("number",call.getNumber());
+        newValues.put("datecall",call.getCallDate());
+        try {
+            SQLiteDatabase userDB = dbHelper.getWritableDatabase();
+            userDB.insertOrThrow("calls", null, newValues);
+            userDB.close();
+        }catch (SQLException e){
+            print("error add to base "+e.toString());
+        }
+    }
+
+    public static String getFullCurrentDate(){
+        // Текущее время
+        Date currentDate = new Date();
+        // Форматирование времени как "день.месяц.год"
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
+        String dateText = dateFormat.format(currentDate);
+        // Форматирование времени как "часы:минуты:секунды"
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        String timeText = timeFormat.format(currentDate);
+        return (timeText+" "+dateText);
+    }
+
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void readContacts(Context context)
     {
@@ -304,11 +356,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             }
         }
 
-        Collections.sort(contacts, new Comparator<Contact>() {
-            public int compare(Contact o1, Contact o2) {
-                return o1.getName().toString().compareTo(o2.getName().toString());
-            }
-        });
+//        Collections.sort(contacts, new Comparator<Contact>() {
+//            public int compare(Contact o1, Contact o2) {
+//                return o1.getName().toString().compareTo(o2.getName().toString());
+//            }
+//        });
     }
 
     public static class NameSorter implements Comparator<Contact> {
@@ -549,5 +601,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @Override
     public void onContactClick(int position) {
 
+    }
+
+    public static void print(String str){
+        Log.d("aster",str);
     }
 }
