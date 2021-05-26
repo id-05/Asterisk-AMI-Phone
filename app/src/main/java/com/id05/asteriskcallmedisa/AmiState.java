@@ -1,6 +1,11 @@
 package com.id05.asteriskcallmedisa;
 
 public class AmiState {
+
+    public AmiState(){
+
+    }
+
     Boolean ResultOperation;
 
     public String getAction() {

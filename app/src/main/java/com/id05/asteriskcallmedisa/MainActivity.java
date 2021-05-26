@@ -51,11 +51,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.id05.asteriskcallmedisa.CallsFragment.calls;
+
 public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
     private static boolean callingState;
     public static Drawable wait;
-    private AmiState amistate;
+    private static AmiState amistate = new AmiState();
 
     public static int SERVERPORT;
     public static String SERVER_IP;
@@ -67,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public SharedPreferences sPref;
     private final int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
     public static final ArrayList<Contact> contacts = new ArrayList<>();
-    public static final ArrayList<Call> calls = new ArrayList<>();
     public static DateBase dbHelper;
     @SuppressLint("StaticFieldLeak")
     public static EditText inputNumber;
@@ -83,12 +84,12 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     static Animation animationWait = null;
     public static Drawable dial, backspace;
     AudioManager audioManager;
-
     ClipboardManager clipboardManager;
     ClipData clipData;
 
     public static ViewPager viewPager;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,10 +101,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
         viewPager = findViewById(R.id.viewPage);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
-
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-
         inputNumber = findViewById(R.id.inputNumber);
         clipboardManager=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
         inputNumber.setOnLongClickListener(new View.OnLongClickListener() {
@@ -111,13 +110,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             public boolean onLongClick(View v) {
                 ClipData data = clipboardManager.getPrimaryClip();
                 ClipData.Item item = data.getItemAt(0);
-
                 String text = item.getText().toString();
                 inputNumber.setText(text);
                 int position = text.length();
                 Editable etext = inputNumber.getText();
                 Selection.setSelection(etext, position);
-
                 return false;
             }
         });
@@ -248,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
@@ -293,13 +291,20 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     }
 
+    public static void callDelBase(int i) {
+        SQLiteDatabase userDB = dbHelper.getWritableDatabase();
+        userDB.delete("calls","id = " + i, null);
+    }
+
+    public static void deleteAllCalls(){
+        SQLiteDatabase userDB = dbHelper.getWritableDatabase();
+        userDB.delete("calls",null,null);
+    }
+
     public static String getFullCurrentDate(){
-        // Текущее время
         Date currentDate = new Date();
-        // Форматирование времени как "день.месяц.год"
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
         String dateText = dateFormat.format(currentDate);
-        // Форматирование времени как "часы:минуты:секунды"
         DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         String timeText = timeFormat.format(currentDate);
         return (timeText+" "+dateText);
@@ -356,11 +361,15 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             }
         }
 
-//        Collections.sort(contacts, new Comparator<Contact>() {
-//            public int compare(Contact o1, Contact o2) {
-//                return o1.getName().toString().compareTo(o2.getName().toString());
-//            }
-//        });
+        try{
+        Collections.sort(contacts, new Comparator<Contact>() {
+            public int compare(Contact o1, Contact o2) {
+                return o1.getName().toString().compareTo(o2.getName().toString());
+            }
+            });
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public static class NameSorter implements Comparator<Contact> {
@@ -413,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     }
                     break;
                 case R.id.butCall:{
+                    //System.out.println("qqqqqqqqqqqqqqqq = "+inputNumber.getText().toString());
                     calling(inputNumber.getText().toString());
                 }
                     break;
@@ -448,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                             "Async: true\n" +
                             "CallerID: "+myphonenumber+"\n" +
                             "ActionID: 123\n";
-                    Log.d("aster","comenter = "+comenter);
+                    System.out.println("aster"+"comenter = "+comenter);
                     Boolean buf = mtc.sendCommand(comenter);
                     amistate.setResultOperation(buf);
                 }
@@ -465,6 +475,12 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
     @SuppressLint("SetTextI18n")
     public void calling(String number){
+        Call call = new Call(number,number,getFullCurrentDate());
+        callAddBase(new Call(call.getName(),call.getNumber(),getFullCurrentDate()));
+        Collections.reverse(calls);
+        calls.add(call);
+        Collections.reverse(calls);
+        CallsFragment.adapter.notifyDataSetChanged();
         String buf = number.replace(" ","");
         number = buf.replace("-","");
         callingState = true;
@@ -556,15 +572,15 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         String buf = amistate.getAction();
         if(buf.equals("open")){
             amistate.setAction("login");
-            //doSomethingAsyncOperaion(amistate);
+            doSomethingAsyncOperaion(amistate);
         }
         if(buf.equals("login")){
             amistate.setAction("call");
-           // doSomethingAsyncOperaion(amistate);
+            doSomethingAsyncOperaion(amistate);
         }
         if(buf.equals("call")){
             amistate.setAction("exit");
-           // doSomethingAsyncOperaion(amistate);
+            doSomethingAsyncOperaion(amistate);
         }
         if(buf.equals("exit")){
             inputNumber.setText("");

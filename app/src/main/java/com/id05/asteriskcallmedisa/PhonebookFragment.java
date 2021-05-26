@@ -15,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
+import java.util.Collections;
+
+import static com.id05.asteriskcallmedisa.CallsFragment.calls;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
 import static com.id05.asteriskcallmedisa.MainActivity.amisecret;
@@ -129,6 +132,9 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
     @SuppressLint("SetTextI18n")
     public void calling(Contact contact){
         callAddBase(new Call(contact.getName(),contact.getPhone(),getFullCurrentDate()));
+        Collections.reverse(calls);
+        calls.add(new Call(contact.getName(),contact.getPhone(),getFullCurrentDate()));
+        Collections.reverse(calls);
         CallsFragment.adapter.notifyDataSetChanged();
         String number = contact.getPhone();
         String buf = number.replace(" ","");
@@ -172,6 +178,7 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
                             "CallerID: "+myphonenumber+"\n" +
                             "ActionID: 123\n";
                     Log.d("aster","comenter = "+comenter);
+                    System.out.println("aster"+"comenter = "+comenter);
                     Boolean buf = mtc.sendCommand(comenter);
                     amistate.setResultOperation(buf);
                 }

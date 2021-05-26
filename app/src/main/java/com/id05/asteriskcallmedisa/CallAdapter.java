@@ -1,12 +1,13 @@
 package com.id05.asteriskcallmedisa;
 
-
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -21,6 +22,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
 
     interface OnContactClickListener {
         void onContactClick(int position);
+        void onDeleteOne(int position);
+        void onDeleteAll();
     }
 
     private static OnContactClickListener mListener;
@@ -48,12 +51,12 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
         disaViewHolder.contactName.setText(calls.get(i).getName());
         disaViewHolder.contactPhone.setText(calls.get(i).getNumber());
         disaViewHolder.callDate.setText(calls.get(i).getCallDate());
-        disaViewHolder.callLayout.setBackgroundColor(Color.WHITE);
-        disaViewHolder.callLayout.setOnClickListener(new View.OnClickListener() {
+        disaViewHolder.cLayout.setBackgroundColor(Color.WHITE);
+        disaViewHolder.cLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                disaViewHolder.callLayout.setBackgroundColor(Color.GRAY);
+                disaViewHolder.cLayout.setBackgroundColor(Color.GRAY);
                 notifyItemChanged(i);
                 if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
                         & (!amiuser.equals("")) & (!amisecret.equals(""))
@@ -64,6 +67,32 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
                             "Сheck your settings", Toast.LENGTH_LONG);
                     toast.show();
                 }
+            }
+        });
+
+        disaViewHolder.cLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(context, disaViewHolder.cLayout);
+                popupMenu.inflate(R.menu.call_menu);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+
+                            case R.id.deleteall:
+                            {
+                                mListener.onDeleteAll();
+                            }
+                            break;
+                            default:
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
+                return false;
             }
         });
     }
@@ -81,14 +110,14 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
         TextView contactName;
         TextView contactPhone;
         TextView callDate;
-        LinearLayout callLayout;
+        LinearLayout cLayout;
 
         DISAViewHolder(View itemView)  {
             super(itemView);
             contactName = itemView.findViewById(R.id.nameContact);
             contactPhone = itemView.findViewById(R.id.phoneContact);
             callDate = itemView.findViewById(R.id.callTime);
-            callLayout = itemView.findViewById(R.id.recordLayout);
+            cLayout = itemView.findViewById(R.id.callLayout);
         }
 
         @Override

@@ -2,21 +2,18 @@ package com.id05.asteriskcallmedisa;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
 import java.util.ArrayList;
-
+import java.util.Collection;
+import java.util.Collections;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
 import static com.id05.asteriskcallmedisa.MainActivity.amisecret;
@@ -25,8 +22,12 @@ import static com.id05.asteriskcallmedisa.MainActivity.animationRotateLeft;
 import static com.id05.asteriskcallmedisa.MainActivity.animationWait;
 import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
 import static com.id05.asteriskcallmedisa.MainActivity.butDel;
+import static com.id05.asteriskcallmedisa.MainActivity.callAddBase;
+import static com.id05.asteriskcallmedisa.MainActivity.callDelBase;
+import static com.id05.asteriskcallmedisa.MainActivity.deleteAllCalls;
 import static com.id05.asteriskcallmedisa.MainActivity.dial;
 import static com.id05.asteriskcallmedisa.MainActivity.getCallList;
+import static com.id05.asteriskcallmedisa.MainActivity.getFullCurrentDate;
 import static com.id05.asteriskcallmedisa.MainActivity.inputNumber;
 import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
 import static com.id05.asteriskcallmedisa.MainActivity.slPanel;
@@ -37,7 +38,7 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
 
     @SuppressLint("StaticFieldLeak")
     public static CallAdapter adapter;
-    public ArrayList<Call> calls = new ArrayList<>();
+    public static ArrayList<Call> calls = new ArrayList<>();
     static RecyclerView recyclerView;
     AmiState amistate = new AmiState();
     Boolean callingState = false;
@@ -66,17 +67,12 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
         recyclerView = fragmentView.findViewById(R.id.recyclerViewCalls);
         recyclerView.setNestedScrollingEnabled(true);
         calls = getCallList();
+        Collections.reverse(calls);
         if(calls.size()>0) {
             onSetCalls(calls);
         }
         return fragmentView;
     }
-//
-//    public ArrayList<Call> getCallsFromBase(){
-//        ArrayList<Call> bufCalls = new ArrayList<>();
-//
-//        return bufCalls;
-//    }
 
     public void onSetCalls(ArrayList<Call> calllist){
         recyclerView.setHasFixedSize(true);
@@ -89,7 +85,13 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
     }
 
     @SuppressLint("SetTextI18n")
-    public void calling(String number){
+    public void calling(Call call){
+        callAddBase(new Call(call.getName(),call.getNumber(),getFullCurrentDate()));
+        Collections.reverse(calls);
+        calls.add(call);
+        Collections.reverse(calls);
+        CallsFragment.adapter.notifyDataSetChanged();
+        String number = call.getNumber();
         String buf = number.replace(" ","");
         number = buf.replace("-","");
         callingState = true;
@@ -147,7 +149,22 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
 
     @Override
     public void onContactClick(int position) {
+        calling(calls.get(position));
+    }
 
+    @Override
+    public void onDeleteOne(int position){
+        System.out.println("calls.size() - position+1 ="+ calls.size() +"  "+ position);
+        callDelBase(calls.size() - position - 1);
+        calls.remove(position);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDeleteAll(){
+        deleteAllCalls();
+        calls.clear();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
