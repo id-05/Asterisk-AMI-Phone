@@ -2,6 +2,8 @@ package com.id05.asteriskcallmedisa;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -74,7 +76,28 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
         return fragmentView;
     }
 
-    public void onSetCalls(ArrayList<Call> calllist){
+    @Override
+    public void onResume() {
+        super.onResume();
+        calls = getCallList();
+        Collections.reverse(calls);
+        if(calls.size()>0) {
+            onSetCalls(calls);
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        super.onResume();
+        calls = getCallList();
+        Collections.reverse(calls);
+        if(calls.size()>0) {
+            onSetCalls(calls);
+        }
+    }
+
+    public  void onSetCalls(ArrayList<Call> calllist){
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new GridLayoutManager(getContext(),1);
         recyclerView.setLayoutManager(linearLayoutManager);

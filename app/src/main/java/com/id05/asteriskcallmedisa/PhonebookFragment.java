@@ -28,6 +28,7 @@ import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
 import static com.id05.asteriskcallmedisa.MainActivity.butDel;
 import static com.id05.asteriskcallmedisa.MainActivity.callAddBase;
 import static com.id05.asteriskcallmedisa.MainActivity.dial;
+import static com.id05.asteriskcallmedisa.MainActivity.getCallList;
 import static com.id05.asteriskcallmedisa.MainActivity.getFullCurrentDate;
 import static com.id05.asteriskcallmedisa.MainActivity.inputNumber;
 import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
@@ -135,7 +136,11 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
         Collections.reverse(calls);
         calls.add(new Call(contact.getName(),contact.getPhone(),getFullCurrentDate()));
         Collections.reverse(calls);
-        CallsFragment.adapter.notifyDataSetChanged();
+        try {
+            CallsFragment.adapter.notifyDataSetChanged();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         String number = contact.getPhone();
         String buf = number.replace(" ","");
         number = buf.replace("-","");
