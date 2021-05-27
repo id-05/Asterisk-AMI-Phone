@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     private static boolean callingState;
     public static Drawable wait;
     private static AmiState amistate = new AmiState();
-
     public static int SERVERPORT;
     public static String SERVER_IP;
     public static String amiuser;
