@@ -1,6 +1,4 @@
-package com.id05.asteriskcallmedisa;
-
-import java.util.Date;
+package com.id05.asteriskcallmedisa.data;
 
 public class Call {
 
@@ -12,24 +10,12 @@ public class Call {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
     public String getCallDate() {
         return callDate;
-    }
-
-    public void setCallDate(String callDate) {
-        this.callDate = callDate;
     }
 
     public Call(String name, String number, String date){

@@ -9,7 +9,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 public class AmiPhonePageAdapter extends FragmentPagerAdapter {
 
-    private int numOfTabs;
+    private final int numOfTabs;
 
     AmiPhonePageAdapter(FragmentManager fm, int numOfTabs) {
         super(fm, numOfTabs);

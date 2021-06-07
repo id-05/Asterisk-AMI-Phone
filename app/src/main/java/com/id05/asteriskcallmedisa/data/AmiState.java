@@ -1,4 +1,4 @@
-package com.id05.asteriskcallmedisa;
+package com.id05.asteriskcallmedisa.data;
 
 public class AmiState {
 
@@ -16,16 +16,9 @@ public class AmiState {
         this.action = action;
     }
 
-    public String getInstruction() {
-        return instruction;
-    }
+    public String action;
 
-    public void setInstruction(String instruction) {
-        this.instruction = instruction;
-    }
-
-    String action;
-    String instruction;
+    public String instruction;
 
     public Boolean getResultOperation() {
         return ResultOperation;
@@ -33,10 +26,6 @@ public class AmiState {
 
     public void setResultOperation(Boolean resultOperation) {
         ResultOperation = resultOperation;
-    }
-
-    public String getDescription() {
-        return Description;
     }
 
     public void setDescription(String description) {

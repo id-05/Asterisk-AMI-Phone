@@ -12,6 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.id05.asteriskcallmedisa.data.Call;
+
 import java.util.ArrayList;
 import static com.id05.asteriskcallmedisa.MainActivity.*;
 
@@ -22,7 +25,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
 
     interface OnContactClickListener {
         void onContactClick(int position);
-        void onDeleteOne(int position);
         void onDeleteAll();
     }
 
@@ -78,15 +80,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-
-                            case R.id.deleteall:
-                            {
-                                mListener.onDeleteAll();
-                            }
-                            break;
-                            default:
-                                break;
+                        if (item.getItemId() == R.id.deleteall) {
+                            mListener.onDeleteAll();
                         }
                         return false;
                     }

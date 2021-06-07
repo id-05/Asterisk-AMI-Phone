@@ -2,7 +2,6 @@ package com.id05.asteriskcallmedisa;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -12,9 +11,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import com.id05.asteriskcallmedisa.data.AmiState;
+import com.id05.asteriskcallmedisa.data.Call;
+import com.id05.asteriskcallmedisa.util.AbstractAsyncWorker;
+import com.id05.asteriskcallmedisa.util.ConnectionCallback;
+import com.id05.asteriskcallmedisa.util.MyTelnetClient;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
 import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
@@ -25,7 +28,6 @@ import static com.id05.asteriskcallmedisa.MainActivity.animationWait;
 import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
 import static com.id05.asteriskcallmedisa.MainActivity.butDel;
 import static com.id05.asteriskcallmedisa.MainActivity.callAddBase;
-import static com.id05.asteriskcallmedisa.MainActivity.callDelBase;
 import static com.id05.asteriskcallmedisa.MainActivity.deleteAllCalls;
 import static com.id05.asteriskcallmedisa.MainActivity.dial;
 import static com.id05.asteriskcallmedisa.MainActivity.getCallList;
@@ -34,7 +36,6 @@ import static com.id05.asteriskcallmedisa.MainActivity.inputNumber;
 import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
 import static com.id05.asteriskcallmedisa.MainActivity.slPanel;
 import static com.id05.asteriskcallmedisa.MainActivity.wait;
-
 
 public class CallsFragment extends Fragment implements ConnectionCallback, CallAdapter.OnContactClickListener {
 
@@ -48,12 +49,6 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
 
     public CallsFragment() {
 
-    }
-
-    public static CallsFragment newInstance(String param1, String param2) {
-        CallsFragment fragment = new CallsFragment();
-
-        return fragment;
     }
 
     @Override
@@ -176,14 +171,6 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
     }
 
     @Override
-    public void onDeleteOne(int position){
-        System.out.println("calls.size() - position+1 ="+ calls.size() +"  "+ position);
-        callDelBase(calls.size() - position - 1);
-        calls.remove(position);
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
     public void onDeleteAll(){
         deleteAllCalls();
         calls.clear();
@@ -219,6 +206,7 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onFailure(AmiState amiState) {
         inputNumber.setText(amistate.getAction()+" error");

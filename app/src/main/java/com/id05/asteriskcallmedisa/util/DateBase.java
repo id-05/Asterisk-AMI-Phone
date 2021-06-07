@@ -1,4 +1,4 @@
-package com.id05.asteriskcallmedisa;
+package com.id05.asteriskcallmedisa.util;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

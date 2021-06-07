@@ -1,19 +1,18 @@
-package com.id05.asteriskcallmedisa;
+package com.id05.asteriskcallmedisa.util;
 
 import java.io.BufferedInputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import android.util.Log;
-
 import org.apache.commons.net.telnet.TelnetClient;
 
 public class MyTelnetConnection {
-    private TelnetClient client = null;
+    private final TelnetClient client;
     private final String SERVER_IP;
     private final int SERVERPORT;
 
-    public MyTelnetConnection(String ip, int port) throws IOException{
+    public MyTelnetConnection(String ip, int port) {
         SERVER_IP = ip;
         SERVERPORT = port;
         client = new TelnetClient();
@@ -37,19 +36,5 @@ public class MyTelnetConnection {
 
     public boolean isConnected() {
         return client.isConnected();
-    }
-
-    public boolean disconnect() {
-        try {
-            client.disconnect();
-        } catch (IOException e) {
-            Log.e("Couldn't disconnect",e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    public TelnetClient getConnection(){
-        return client;
     }
 }

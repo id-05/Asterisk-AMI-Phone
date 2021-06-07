@@ -1,15 +1,14 @@
-package com.id05.asteriskcallmedisa;
+package com.id05.asteriskcallmedisa.util;
 
 import android.os.AsyncTask;
-
+import com.id05.asteriskcallmedisa.data.AmiState;
 import static java.lang.Thread.sleep;
 
-abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, AmiState> {
+public abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, AmiState> {
     private final ConnectionCallback callback;
-    private Throwable t;
-    private AmiState amistate = new AmiState();
+    private final AmiState amistate;
 
-    AbstractAsyncWorker(ConnectionCallback callback, AmiState amistate) {
+    protected AbstractAsyncWorker(ConnectionCallback callback, AmiState amistate) {
         this.callback = callback;
         this.amistate = amistate;
     }
@@ -59,8 +58,5 @@ abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, AmiStat
         } else if (!amistate.getResultOperation()) {
             callback.onFailure(amistate);
         }
-//        } else {
-//            callback.onFailure(new NullPointerException("Result is empty but error empty too"));
-//        }
     }
 }

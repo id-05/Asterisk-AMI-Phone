@@ -1,4 +1,4 @@
-package com.id05.asteriskcallmedisa;
+package com.id05.asteriskcallmedisa.data;
 
 public class Contact
 {

@@ -7,7 +7,6 @@ import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -28,7 +27,6 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.Selection;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,10 +37,15 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
 import com.google.android.material.tabs.TabLayout;
+import com.id05.asteriskcallmedisa.data.AmiState;
+import com.id05.asteriskcallmedisa.data.Call;
+import com.id05.asteriskcallmedisa.data.Contact;
+import com.id05.asteriskcallmedisa.util.AbstractAsyncWorker;
+import com.id05.asteriskcallmedisa.util.ConnectionCallback;
+import com.id05.asteriskcallmedisa.util.DateBase;
+import com.id05.asteriskcallmedisa.util.MyTelnetClient;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,14 +53,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-
 import static com.id05.asteriskcallmedisa.CallsFragment.calls;
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
     private static boolean callingState;
     public static Drawable wait;
-    private static AmiState amistate = new AmiState();
+    private static final AmiState amistate = new AmiState();
     public static int SERVERPORT;
     public static String SERVER_IP;
     public static String amiuser;
@@ -75,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     @SuppressLint("StaticFieldLeak")
     static ImageButton butDel;
     ImageButton butCall;
-
     public static SlidingUpPanelLayout slPanel;
     Context context;
     Animation animationRotateRight = null;
@@ -84,8 +85,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public static Drawable dial, backspace;
     AudioManager audioManager;
     ClipboardManager clipboardManager;
-    ClipData clipData;
-
     public static ViewPager viewPager;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -95,9 +94,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
-
         dbHelper = new DateBase(this);
-
         viewPager = findViewById(R.id.viewPage);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -290,11 +287,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         }
     }
 
-    public static void callDelBase(int i) {
-        SQLiteDatabase userDB = dbHelper.getWritableDatabase();
-        userDB.delete("calls","id = " + i, null);
-    }
-
     public static void deleteAllCalls(){
         SQLiteDatabase userDB = dbHelper.getWritableDatabase();
         userDB.delete("calls",null,null);
@@ -363,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         try{
         Collections.sort(contacts, new Comparator<Contact>() {
             public int compare(Contact o1, Contact o2) {
-                return o1.getName().toString().compareTo(o2.getName().toString());
+                return o1.getName().compareTo(o2.getName());
             }
             });
         }catch (Exception e){
