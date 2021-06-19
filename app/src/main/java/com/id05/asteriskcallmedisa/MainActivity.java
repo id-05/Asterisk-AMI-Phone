@@ -37,6 +37,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
 import com.google.android.material.tabs.TabLayout;
 import com.id05.asteriskcallmedisa.data.AmiState;
 import com.id05.asteriskcallmedisa.data.Call;
@@ -107,10 +109,17 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 ClipData data = clipboardManager.getPrimaryClip();
                 ClipData.Item item = data.getItemAt(0);
                 String text = item.getText().toString();
-                inputNumber.setText(text);
-                int position = text.length();
-                Editable etext = inputNumber.getText();
-                Selection.setSelection(etext, position);
+                String buf = "+0123456789";
+                StringBuilder stringBuilder = new StringBuilder();
+                for(int i=0; i<text.length(); i++){
+                    if(buf.contains(String.valueOf(text.charAt(i)))){
+                        stringBuilder.append(text.charAt(i));
+                    }
+                }
+                inputNumber.setText(stringBuilder.toString());
+//                int position = text.length();
+//                Editable etext = inputNumber.getText();
+//                Selection.setSelection(etext, position);
                 return false;
             }
         });
@@ -237,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             });
 
         }catch (Exception e){
-           // print("error frag ="+e.toString());
+           //
         }
     }
 
@@ -413,8 +422,15 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     }
                     break;
                 case R.id.butCall:{
-                    //System.out.println("qqqqqqqqqqqqqqqq = "+inputNumber.getText().toString());
-                    calling(inputNumber.getText().toString());
+                    if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
+                            & (!amiuser.equals("")) & (!amisecret.equals(""))
+                            & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {
+                        calling(inputNumber.getText().toString());
+                    }else{
+                        Toast toast = Toast.makeText(context,
+                                "Сheck your settings", Toast.LENGTH_LONG);
+                        toast.show();
+                    }
                 }
                     break;
             }

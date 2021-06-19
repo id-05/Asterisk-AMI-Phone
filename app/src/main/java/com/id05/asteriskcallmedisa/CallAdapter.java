@@ -12,9 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.id05.asteriskcallmedisa.data.Call;
-
 import java.util.ArrayList;
 import static com.id05.asteriskcallmedisa.MainActivity.*;
 

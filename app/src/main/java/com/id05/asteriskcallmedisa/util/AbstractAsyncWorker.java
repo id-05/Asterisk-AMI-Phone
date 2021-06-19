@@ -28,7 +28,6 @@ public abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, 
         try {
             amistate.setResultOperation(true);
             amistate.setDescription("");
-
             return doAction();
         } catch (Exception e) {
             amistate.setResultOperation(false);
@@ -43,11 +42,7 @@ public abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, 
         if (callback != null) {
             callback.onEnd();
         }
-        try {
-            sleep(0);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         generateCallback(amistate);
     }
 
