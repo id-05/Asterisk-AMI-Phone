@@ -19,33 +19,17 @@ import com.id05.asteriskcallmedisa.util.MyTelnetClient;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.Collections;
-import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
-import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
-import static com.id05.asteriskcallmedisa.MainActivity.amisecret;
-import static com.id05.asteriskcallmedisa.MainActivity.amiuser;
-import static com.id05.asteriskcallmedisa.MainActivity.animationRotateLeft;
-import static com.id05.asteriskcallmedisa.MainActivity.animationWait;
-import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
-import static com.id05.asteriskcallmedisa.MainActivity.butDel;
-import static com.id05.asteriskcallmedisa.MainActivity.callAddBase;
-import static com.id05.asteriskcallmedisa.MainActivity.deleteAllCalls;
-import static com.id05.asteriskcallmedisa.MainActivity.dial;
-import static com.id05.asteriskcallmedisa.MainActivity.getCallList;
-import static com.id05.asteriskcallmedisa.MainActivity.getFullCurrentDate;
-import static com.id05.asteriskcallmedisa.MainActivity.inputNumber;
-import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
-import static com.id05.asteriskcallmedisa.MainActivity.slPanel;
-import static com.id05.asteriskcallmedisa.MainActivity.wait;
+import static com.id05.asteriskcallmedisa.MainActivity.*;
 
 public class CallsFragment extends Fragment implements ConnectionCallback, CallAdapter.OnContactClickListener {
 
     @SuppressLint("StaticFieldLeak")
-    public static CallAdapter adapter;
-    public static ArrayList<Call> calls = new ArrayList<>();
-    static RecyclerView recyclerView;
+    static CallAdapter adapter;
+    static ArrayList<Call> calls = new ArrayList<>();
+    RecyclerView recyclerView;
     AmiState amistate = new AmiState();
     Boolean callingState = false;
-    private static MyTelnetClient mtc;
+    MyTelnetClient mtc;
 
     public CallsFragment() {
 
@@ -129,7 +113,7 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
             @Override
             protected AmiState doAction() throws Exception {
                 if(amistate.action.equals("open")){
-                    mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                    mtc = new MyTelnetClient(SERVER_IP,SERVER_PORT);
                     amistate.setResultOperation(mtc.isConnected());
                 }
                 if(amistate.action.equals("login")){

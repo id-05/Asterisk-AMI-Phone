@@ -25,8 +25,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.Editable;
-import android.text.Selection;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +36,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
 import com.google.android.material.tabs.TabLayout;
 import com.id05.asteriskcallmedisa.data.AmiState;
 import com.id05.asteriskcallmedisa.data.Call;
@@ -59,38 +56,38 @@ import static com.id05.asteriskcallmedisa.CallsFragment.calls;
 
 public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
 
-    private static boolean callingState;
-    public static Drawable wait;
-    private static final AmiState amistate = new AmiState();
-    public static int SERVERPORT;
-    public static String SERVER_IP;
-    public static String amiuser;
-    public static String amisecret;
-    public static String astercontext;
-    public static String myphonenumber;
-    private static MyTelnetClient mtc;
-    public SharedPreferences sPref;
-    private final int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
-    public static final ArrayList<Contact> contacts = new ArrayList<>();
-    public static DateBase dbHelper;
+    boolean callingState;
+    static Drawable wait;
+    AmiState amistate = new AmiState();
+    static int SERVER_PORT;
+    static String SERVER_IP;
+    static String amiuser;
+    static String amisecret;
+    static String astercontext;
+    static String myphonenumber;
+    MyTelnetClient mtc;
+    SharedPreferences sPref;
+    int PERMISSIONS_REQUEST_READ_CONTACTS = 10;
+    static ArrayList<Contact> contacts = new ArrayList<>();
+    static DateBase dbHelper;
     @SuppressLint("StaticFieldLeak")
-    public static EditText inputNumber;
+    static EditText inputNumber;
     Button but0,but1,but2,but3, but4, but5, but6, but7, but8, but9;
     @SuppressLint("StaticFieldLeak")
     static ImageButton butDel;
     ImageButton butCall;
-    public static SlidingUpPanelLayout slPanel;
+    static SlidingUpPanelLayout slPanel;
     Context context;
     Animation animationRotateRight = null;
-    public static Animation animationRotateLeft = null;
+    static Animation animationRotateLeft = null;
     static Animation animationWait = null;
-    public static Drawable dial, backspace;
+    static Drawable dial, backspace;
     AudioManager audioManager;
     ClipboardManager clipboardManager;
-    public static ViewPager viewPager;
+    ViewPager viewPager;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("UseCompatLoadingForDrawables")
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,9 +114,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     }
                 }
                 inputNumber.setText(stringBuilder.toString());
-//                int position = text.length();
-//                Editable etext = inputNumber.getText();
-//                Selection.setSelection(etext, position);
                 return false;
             }
         });
@@ -422,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     }
                     break;
                 case R.id.butCall:{
-                    if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
+                    if((!SERVER_IP.equals("")) & (SERVER_PORT > 0)
                             & (!amiuser.equals("")) & (!amisecret.equals(""))
                             & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {
                         calling(inputNumber.getText().toString());
@@ -444,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             @Override
             protected AmiState doAction() throws Exception {
                 if(amistate.action.equals("open")){
-                    mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                    mtc = new MyTelnetClient(SERVER_IP,SERVER_PORT);
                     amistate.setResultOperation(mtc.isConnected());
                 }
                 if(amistate.action.equals("login")){
@@ -614,7 +608,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     public void loadCONFIG() {
         sPref = getSharedPreferences("config",MODE_PRIVATE);
         SERVER_IP = sPref.getString("IP", "");
-        SERVERPORT = sPref.getInt("PORT", 5038);
+        SERVER_PORT = sPref.getInt("PORT", 5038);
         amiuser = sPref.getString("AMIUSER", "");
         amisecret = sPref.getString("AMISECRET", "");
         astercontext = sPref.getString("CONTEXT", "from-internal");

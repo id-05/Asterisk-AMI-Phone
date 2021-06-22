@@ -10,10 +10,10 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 public class MyTelnetClient {
-    private final MyTelnetConnection client;
-    private final OutputStream outstream;
-    private final InputStream instream;
-    private PipedInputStream spyReader;
+    final MyTelnetConnection client;
+    final OutputStream outstream;
+    final InputStream instream;
+    PipedInputStream spyReader;
 
     public MyTelnetClient(String ip, int port) throws IOException {
         client = new MyTelnetConnection(ip, port);

@@ -8,9 +8,9 @@ import android.util.Log;
 import org.apache.commons.net.telnet.TelnetClient;
 
 public class MyTelnetConnection {
-    private final TelnetClient client;
-    private final String SERVER_IP;
-    private final int SERVERPORT;
+    final TelnetClient client;
+    final String SERVER_IP;
+    final int SERVERPORT;
 
     public MyTelnetConnection(String ip, int port) {
         SERVER_IP = ip;

@@ -18,8 +18,8 @@ import static com.id05.asteriskcallmedisa.MainActivity.*;
 
 public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder>  {
 
-    private final ArrayList<Call> calls;
-    private final Context context;
+    ArrayList<Call> calls;
+    Context context;
 
     interface OnContactClickListener {
         void onContactClick(int position);
@@ -58,7 +58,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.DISAViewHolder
 
                 disaViewHolder.cLayout.setBackgroundColor(Color.GRAY);
                 notifyItemChanged(i);
-                if((!SERVER_IP.equals("")) & (SERVERPORT > 0)
+                if((!SERVER_IP.equals("")) & (SERVER_PORT > 0)
                         & (!amiuser.equals("")) & (!amisecret.equals(""))
                         & (!astercontext.equals("")) & (!myphonenumber.equals(""))) {
                     mListener.onContactClick(i);

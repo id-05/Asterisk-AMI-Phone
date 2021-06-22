@@ -14,32 +14,22 @@ import com.id05.asteriskcallmedisa.data.AmiState;
 import com.id05.asteriskcallmedisa.util.AbstractAsyncWorker;
 import com.id05.asteriskcallmedisa.util.ConnectionCallback;
 import com.id05.asteriskcallmedisa.util.MyTelnetClient;
-import static com.id05.asteriskcallmedisa.MainActivity.SERVERPORT;
-import static com.id05.asteriskcallmedisa.MainActivity.SERVER_IP;
-import static com.id05.asteriskcallmedisa.MainActivity.amisecret;
-import static com.id05.asteriskcallmedisa.MainActivity.amiuser;
-import static com.id05.asteriskcallmedisa.MainActivity.astercontext;
-import static com.id05.asteriskcallmedisa.MainActivity.myphonenumber;
+import static com.id05.asteriskcallmedisa.MainActivity.*;
 
 public class SettingsActivity extends AppCompatActivity implements ConnectionCallback {
 
-    @SuppressLint("StaticFieldLeak")
-    static EditText ipaddrEdit;
-    @SuppressLint("StaticFieldLeak")
-    static EditText portEdit;
-    @SuppressLint("StaticFieldLeak")
-    static EditText amiuserEdit;
-    @SuppressLint("StaticFieldLeak")
-    static EditText amisecretEdit;
+    EditText ipaddrEdit;
+    EditText portEdit;
+    EditText amiuserEdit;
+    EditText amisecretEdit;
     EditText asteriskcontextEdit;
     EditText myphonenumberEdit;
     Button testBut;
     Button saveBut;
     Button cancelBut;
-    public SharedPreferences sPref;
-    @SuppressLint("StaticFieldLeak")
-    static LinearLayout settinglayout;
-    private static MyTelnetClient mtc;
+    SharedPreferences sPref;
+    LinearLayout settinglayout;
+    MyTelnetClient mtc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +83,7 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
             @Override
             protected AmiState doAction() throws Exception {
                 if(amistate.action.equals("open")){
-                    mtc = new MyTelnetClient(SERVER_IP,SERVERPORT);
+                    mtc = new MyTelnetClient(SERVER_IP,SERVER_PORT);
                     amistate.setResultOperation(mtc.isConnected());
                 }
                 if(amistate.action.equals("login")){
@@ -195,7 +185,7 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
     protected void onStart() {
         super.onStart();
         ipaddrEdit.setText(SERVER_IP);
-        portEdit.setText(Integer.toString(SERVERPORT));
+        portEdit.setText(Integer.toString(SERVER_PORT));
         amiuserEdit.setText(amiuser);
         amisecretEdit.setText(amisecret);
         asteriskcontextEdit.setText(astercontext);
@@ -208,7 +198,7 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
         editor.putString("IP", ipaddrEdit.getText().toString());
         SERVER_IP = ipaddrEdit.getText().toString();
         editor.putInt("PORT", Integer.parseInt(portEdit.getText().toString()));
-        SERVERPORT = Integer.parseInt(portEdit.getText().toString());
+        SERVER_PORT = Integer.parseInt(portEdit.getText().toString());
         editor.putString("AMIUSER", amiuserEdit.getText().toString());
         amiuser = amiuserEdit.getText().toString();
         editor.putString("AMISECRET", amisecretEdit.getText().toString());
