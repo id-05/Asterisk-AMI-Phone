@@ -54,7 +54,7 @@ import java.util.Date;
 import java.util.Locale;
 import static com.id05.asteriskcallmedisa.CallsFragment.calls;
 
-public class MainActivity extends AppCompatActivity implements ConnectionCallback, RecordAdapter.OnContactClickListener {
+public class MainActivity extends AppCompatActivity implements  ConnectionCallback, RecordAdapter.OnContactClickListener {
 
     boolean callingState;
     static Drawable wait;
@@ -142,6 +142,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         butDel.setOnClickListener(digitClick);
         butCall = findViewById(R.id.butCall);
         butCall.setOnClickListener(digitClick);
+
+
+
         slPanel = findViewById(R.id.sliding_layout);
         slPanel.setShadowHeight(0);
         slPanel.addPanelSlideListener(panelSlideListener);
@@ -182,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
 
             }
         });
+
         animationRotateLeft = AnimationUtils.loadAnimation(this, R.anim.rotateleft);
         animationRotateLeft.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -243,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
            //
         }
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -437,11 +443,11 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             @SuppressLint("StaticFieldLeak")
             @Override
             protected AmiState doAction() throws Exception {
-                if(amistate.action.equals("open")){
+                if(amistate.getAction().equals("open")){
                     mtc = new MyTelnetClient(SERVER_IP,SERVER_PORT);
                     amistate.setResultOperation(mtc.isConnected());
                 }
-                if(amistate.action.equals("login")){
+                if(amistate.getAction().equals("login")){
                     String com1 = "Action: Login\n"+
                             "Events: off\n"+
                             "Username: "+amiuser+"\n"+
@@ -450,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     amistate.setResultOperation(buf.contains("Response: SuccessMessage: Authentication accepted"));
                     amistate.setDescription(buf);
                 }
-                if(amistate.action.equals("call")){
+                if(amistate.getAction().equals("call")){
                     String comenter = "Action: Originate\n" +
                             "Channel: Local/"+myphonenumber+"@"+astercontext+"\n" +
                             "Exten: "+amistate.instruction+"\n" +
@@ -463,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     Boolean buf = mtc.sendCommand(comenter);
                     amistate.setResultOperation(buf);
                 }
-                if(amistate.action.equals("exit")){
+                if(amistate.getAction().equals("exit")){
                     String com1 = "Action: Logoff\n";
                     mtc.sendCommand(com1);
                     amistate.setResultOperation(true);

@@ -67,6 +67,7 @@ public class MyTelnetClient {
         }
         return result.toString();
     }
+
     public InputStreamReader spawnSpy() throws IOException {
         PipedInputStream in = new PipedInputStream();
         PipedOutputStream out = new PipedOutputStream();
