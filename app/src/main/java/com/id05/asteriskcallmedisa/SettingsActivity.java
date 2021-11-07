@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -78,19 +79,19 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
 
     @SuppressLint("StaticFieldLeak")
     public void doSomethingAsyncOperaion(final AmiState amistate) {
-        new AbstractAsyncWorker<Boolean>(this, amistate) {
+        new AbstractAsyncWorker(this, amistate) {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected AmiState doAction() throws Exception {
                 if(amistate.action.equals("open")){
-                    mtc = new MyTelnetClient(SERVER_IP,SERVER_PORT);
+                    mtc = new MyTelnetClient(ipaddrEdit.getText().toString(),Integer.parseInt(portEdit.getText().toString()));
                     amistate.setResultOperation(mtc.isConnected());
                 }
                 if(amistate.action.equals("login")){
                     String com1 = "Action: Login\n"+
                             "Events: off\n"+
-                            "Username: "+amiuser+"\n"+
-                            "Secret: "+amisecret+"\n";
+                            "Username: "+amiuserEdit.getText().toString()+"\n"+
+                            "Secret: "+amisecretEdit.getText().toString()+"\n";
                     String buf = mtc.getResponse(com1);
                     amistate.setResultOperation(true);
                     amistate.setResultOperation(buf.contains("Response: SuccessMessage: Authentication accepted"));

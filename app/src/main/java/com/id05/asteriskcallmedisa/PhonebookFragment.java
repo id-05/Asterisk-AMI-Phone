@@ -134,7 +134,7 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
 
     @SuppressLint("StaticFieldLeak")
     public void doSomethingAsyncOperaion(final AmiState amistate) {
-        new AbstractAsyncWorker<Boolean>(this, amistate) {
+        new AbstractAsyncWorker(this, amistate) {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected AmiState doAction() throws Exception {

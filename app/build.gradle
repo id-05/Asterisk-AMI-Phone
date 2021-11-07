@@ -1,16 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 30
+    buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId "com.id05.asteriskcallmedisa"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 11
-        versionName "2.1"
-
+        versionName "2.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -21,24 +20,26 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_7
-        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.google.android.material:material:1.3.0"
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'junit:junit:4.13.1'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation files('C:\\Users\\id-05\\Dropbox\\PROGRAMS_ANDROID\\AsteriskcallmeDISA\\externallib\\commons-io-2.6.jar')
-    implementation files('C:\\Users\\id-05\\Dropbox\\PROGRAMS_ANDROID\\AsteriskcallmeDISA\\externallib\\apache-commons-net.jar')
+    implementation "com.google.android.material:material:1.4.0"
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    implementation 'junit:junit:4.13.2'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    //noinspection GradlePath
+    implementation files('C:/Users/id-05/Dropbox/PROGRAMS_ANDROID/AsteriskcallmeDISA/externallib/commons-io-2.6.jar')
+    //noinspection GradlePath
+    implementation files('C:/Users/id-05/Dropbox/PROGRAMS_ANDROID/AsteriskcallmeDISA/externallib/apache-commons-net.jar')
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
 }

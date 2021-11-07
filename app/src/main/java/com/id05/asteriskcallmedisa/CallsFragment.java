@@ -58,8 +58,7 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
     @Override
     public void onResume() {
         super.onResume();
-        calls = getCallList();
-        Collections.reverse(calls);
+        //Collections.reverse(calls);
         if(calls.size()>0) {
             onSetCalls(calls);
         }
@@ -108,7 +107,7 @@ public class CallsFragment extends Fragment implements ConnectionCallback, CallA
 
     @SuppressLint("StaticFieldLeak")
     public void doSomethingAsyncOperaion(final AmiState amistate) {
-        new AbstractAsyncWorker<Boolean>(this, amistate) {
+        new AbstractAsyncWorker(this, amistate) {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected AmiState doAction() throws Exception {

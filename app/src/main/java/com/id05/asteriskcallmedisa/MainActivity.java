@@ -143,8 +143,6 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
         butCall = findViewById(R.id.butCall);
         butCall.setOnClickListener(digitClick);
 
-
-
         slPanel = findViewById(R.id.sliding_layout);
         slPanel.setShadowHeight(0);
         slPanel.addPanelSlideListener(panelSlideListener);
@@ -252,8 +250,8 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if ((grantResults.length > 0) &&
                     (grantResults[0] ==
@@ -269,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
             Cursor cursor = userDB.query("calls", null, null, null, null, null, null);
             if (cursor.moveToFirst()) {
                 do {
-                    print(cursor.getString(cursor.getColumnIndex("name")));
                     Call call = new Call(
                             cursor.getString(cursor.getColumnIndex("name")),
                             cursor.getString(cursor.getColumnIndex("number")),
@@ -309,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
         String timeText = timeFormat.format(currentDate);
         return (timeText+" "+dateText);
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void readContacts(Context context)
@@ -439,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
 
     @SuppressLint("StaticFieldLeak")
     public void doSomethingAsyncOperaion(final AmiState amistate) {
-        new AbstractAsyncWorker<Boolean>(this, amistate) {
+        new AbstractAsyncWorker(this, amistate) {
             @SuppressLint("StaticFieldLeak")
             @Override
             protected AmiState doAction() throws Exception {
@@ -465,7 +461,6 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
                             "Async: true\n" +
                             "CallerID: "+myphonenumber+"\n" +
                             "ActionID: 123\n";
-                    System.out.println("aster"+"comenter = "+comenter);
                     Boolean buf = mtc.sendCommand(comenter);
                     amistate.setResultOperation(buf);
                 }
@@ -484,10 +479,15 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
     public void calling(String number){
         Call call = new Call(number,number,getFullCurrentDate());
         callAddBase(new Call(call.getName(),call.getNumber(),getFullCurrentDate()));
-        Collections.reverse(calls);
-        calls.add(call);
-        Collections.reverse(calls);
-        CallsFragment.adapter.notifyDataSetChanged();
+        try{
+            Collections.reverse(calls);
+            calls.add(call);
+            Collections.reverse(calls);
+            CallsFragment.adapter.notifyDataSetChanged();
+        }catch (Exception e){
+            print("error callng = "+e.getMessage());
+        }
+
         String buf = number.replace(" ","");
         number = buf.replace("-","");
         callingState = true;
@@ -601,6 +601,11 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
     @SuppressLint("SetTextI18n")
     @Override
     public void onFailure(AmiState amistate) {
+//        inputNumber.setText(amistate.getAction()+" error");
+//        butDel.setImageDrawable(dial);
+//        butDel.startAnimation(animationRotateLeft);
+//        callingState = false;
+//        slPanel.setEnabled(true);
         inputNumber.setText(amistate.getAction()+" error");
         butDel.setImageDrawable(dial);
         callingState = true;

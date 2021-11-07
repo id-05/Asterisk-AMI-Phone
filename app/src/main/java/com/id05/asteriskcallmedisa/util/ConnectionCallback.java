@@ -2,12 +2,12 @@ package com.id05.asteriskcallmedisa.util;
 
 import com.id05.asteriskcallmedisa.data.AmiState;
 
-public interface ConnectionCallback <V> {
-    void onBegin(); //Асинхронная операция началась
+public interface ConnectionCallback {
+    void onBegin();
 
-    void onSuccess(AmiState amistate); //Получили результат
+    void onSuccess(AmiState amistate);
 
-    void onFailure(AmiState amiState); //Получили ошибку
+    void onFailure(AmiState amiState);
 
-    void onEnd(); //Операция закончилась
+    void onEnd();
 }

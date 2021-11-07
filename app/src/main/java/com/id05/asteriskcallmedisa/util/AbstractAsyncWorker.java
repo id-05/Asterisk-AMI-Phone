@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import com.id05.asteriskcallmedisa.data.AmiState;
 import static java.lang.Thread.sleep;
 
-public abstract class AbstractAsyncWorker<String> extends AsyncTask<Void, Void, AmiState> {
+public abstract class AbstractAsyncWorker extends AsyncTask<Void, Void, AmiState> {
     private final ConnectionCallback callback;
     private final AmiState amistate;
 
