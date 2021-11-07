@@ -8,7 +8,7 @@ android {
         applicationId "com.id05.asteriskcallmedisa"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 11
+        versionCode 12
         versionName "2.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

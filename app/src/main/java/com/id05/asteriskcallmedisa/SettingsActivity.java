@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -174,12 +173,7 @@ public class SettingsActivity extends AppCompatActivity implements ConnectionCal
         }
     };
 
-    View.OnClickListener cancelClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            finish();
-        }
-    };
+    View.OnClickListener cancelClick = v -> finish();
 
     @SuppressLint("SetTextI18n")
     @Override

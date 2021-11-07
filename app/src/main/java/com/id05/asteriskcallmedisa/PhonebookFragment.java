@@ -79,12 +79,7 @@ public class PhonebookFragment extends Fragment implements ConnectionCallback, R
             }
         });
 
-        mySeachText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            }
-        });
+        mySeachText.setOnClickListener(v -> slPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED));
 
         return fragmentView;
     }

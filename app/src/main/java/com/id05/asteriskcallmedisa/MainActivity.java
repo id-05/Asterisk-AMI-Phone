@@ -49,7 +49,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import static com.id05.asteriskcallmedisa.CallsFragment.calls;
@@ -100,22 +99,19 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
         audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         inputNumber = findViewById(R.id.inputNumber);
         clipboardManager=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-        inputNumber.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ClipData data = clipboardManager.getPrimaryClip();
-                ClipData.Item item = data.getItemAt(0);
-                String text = item.getText().toString();
-                String buf = "+0123456789";
-                StringBuilder stringBuilder = new StringBuilder();
-                for(int i=0; i<text.length(); i++){
-                    if(buf.contains(String.valueOf(text.charAt(i)))){
-                        stringBuilder.append(text.charAt(i));
-                    }
+        inputNumber.setOnLongClickListener(v -> {
+            ClipData data = clipboardManager.getPrimaryClip();
+            ClipData.Item item = data.getItemAt(0);
+            String text = item.getText().toString();
+            String buf = "+0123456789";
+            StringBuilder stringBuilder = new StringBuilder();
+            for(int i=0; i<text.length(); i++){
+                if(buf.contains(String.valueOf(text.charAt(i)))){
+                    stringBuilder.append(text.charAt(i));
                 }
-                inputNumber.setText(stringBuilder.toString());
-                return false;
             }
+            inputNumber.setText(stringBuilder.toString());
+            return false;
         });
 
         but0 = findViewById(R.id.but0);
@@ -358,23 +354,11 @@ public class MainActivity extends AppCompatActivity implements  ConnectionCallba
         }
 
         try{
-        Collections.sort(contacts, new Comparator<Contact>() {
-            public int compare(Contact o1, Contact o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-            });
+        Collections.sort(contacts, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
     }
-
-    public static class NameSorter implements Comparator<Contact> {
-        @Override
-        public int compare(Contact contact1, Contact contact2) {
-            return contact1.getName().compareTo(contact2.getName());
-        }
-    }
-
 
     View.OnClickListener digitClick = new View.OnClickListener() {
         @SuppressLint({"NonConstantResourceId", "SetTextI18n"})

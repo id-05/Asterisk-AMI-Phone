@@ -2,7 +2,6 @@ package com.id05.asteriskcallmedisa.util;
 
 import android.os.AsyncTask;
 import com.id05.asteriskcallmedisa.data.AmiState;
-import static java.lang.Thread.sleep;
 
 public abstract class AbstractAsyncWorker extends AsyncTask<Void, Void, AmiState> {
     private final ConnectionCallback callback;
